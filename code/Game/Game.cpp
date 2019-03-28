@@ -17,6 +17,7 @@
 #include "World/PathPlanner.h"
 #include "World/ShapeServer.h"
 #include "World/MessageDispatcher.h"
+#include "World/Skybox.h"
 // Weird stuff.
 #include "Game.h"
 #include "glm/gtc/random.hpp"
@@ -65,6 +66,7 @@ AppState::Code Game::OnInit()
 			DataContainerSingleton::GetInstance().Deserialize((const char*)result[1].Data.Data());
 
 			// add world components
+			world->AddComponent<Skybox>();
 			world->AddComponent<Level>((const char*)result[0].Data.Data());
 			world->AddComponent<PathPlanner>();
 			world->AddComponent<MessageDispatcher>();
