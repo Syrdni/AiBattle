@@ -38,6 +38,7 @@ public:
 	static bool isLoaded;
 	static bool isLoaded2;
 	static bool running;
+	static int winner;
 	static int units[16];
 
 

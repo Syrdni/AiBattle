@@ -29,6 +29,7 @@ PyConsole Game::Console = PyConsole();
 bool Game::isLoaded = false;
 bool Game::isLoaded2 = false;
 bool Game::running = true;
+int Game::winner = 0;
 //Units[] indexering: 0 = WokerT1, 1 = ExplorerT1, 2 = CraftsmanT1, 3 = SoldiersT1, 4= WorkerT2 etc..
 int Game::units[] = { 50,0,0,0, 50,0,0,0, 0,0,0,0, 0,0,0,0 };
 OryolMain(Game);
@@ -343,6 +344,14 @@ void Game::DrawUI()
 
 		}
 		ImGui::End();
+
+		if (!running)
+		{
+			ImGui::SetNextWindowPos(ImVec2(500.0f, 500.0f),ImGuiCond_Once);
+			ImGui::Begin("Victory Screen!", nullptr, ImVec2(200, 50), 0.7f);
+			ImGui::Text("Winner: team %i ", Game::winner);
+			ImGui::End();
+		}
 	}
 }
 
