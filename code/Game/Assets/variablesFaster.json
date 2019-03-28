@@ -256,5 +256,10 @@
 		"walkable": 1,
 		"buildable": 0
 		}
-	]
+	],
+"combat":
+	{
+	"damage": 5,
+	"cooldown": 1
+	}
 }

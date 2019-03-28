@@ -75,6 +75,14 @@ public:
 		return tileInfoMap;
 	}
 
+	const int& GetAttackDamage() {
+		return attackDamage;
+	}
+
+	const int& GetAttackCooldown() {
+		return attackCooldown;
+	}
+
 	/// Deserialize data from JSON into structs and add structs to maps
 	void Deserialize(const char* data) {
 		cJSON *json = cJSON_Parse(data);
@@ -150,6 +158,10 @@ public:
 			tileInfoMap.Add(t.name, t);
 			int woodreq = buildingMap["smithy"].materialsRequired.wood;
 		}
+
+		cJSON* combat = cJSON_GetObjectItem(json, "combat");
+		attackDamage = cJSON_GetObjectItem(combat, "damage")->valueint;
+		attackCooldown = cJSON_GetObjectItem(combat, "cooldown")->valueint;
 	}
 
 private:
@@ -157,6 +169,8 @@ private:
 	Oryol::Map<Oryol::StringAtom, BuildingInfo> buildingMap;
 	Oryol::Map<Oryol::StringAtom, MaterialInfo> materialMap;
 	Oryol::Map<Oryol::StringAtom, TileInfo> tileInfoMap;
+	int attackDamage;
+	int attackCooldown;
 
 
 	

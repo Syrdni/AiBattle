@@ -328,8 +328,8 @@ inline void TaskPlanner::NextTask() {
 				
 				// Attack Castle
 				if (victim->HasComponent<InventoryComponent>()) {
-					victim->OnReceiveMessage(Attack::Create(5));				// damage set by Krig on random.. (blame him, not Boris) 21/3 -19
-					Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), 2); // random delay.. blame krig.. . not Boris.
+					victim->OnReceiveMessage(Attack::Create(data.GetAttackDamage()));
+					Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), data.GetAttackCooldown());
 					attacker->GetComponent<Soldier>()->canAttack = false;
 				}
 				// Attack entities
@@ -337,8 +337,8 @@ inline void TaskPlanner::NextTask() {
 					for (auto entity : list)
 						if (entity == victim)
 						{
-							victim->OnReceiveMessage(Attack::Create(5));				// damage set by Krig on random.. (blame him, not Boris) 21/3 -19
-							Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), 2); // random delay.. blame krig.. . not Boris.
+							victim->OnReceiveMessage(Attack::Create(data.GetAttackDamage()));
+							Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), data.GetAttackCooldown());
 							attacker->GetComponent<Soldier>()->canAttack = false;
 							break;
 						}
