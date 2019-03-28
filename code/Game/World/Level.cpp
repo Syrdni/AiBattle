@@ -175,14 +175,17 @@ void Level::Update()
 		}
 
 		auto data = info;
-		if (tile.IsVisibleToTeam(this->SelectedTeam))
+		if (tile.IsVisibleToTeam(this->SelectedTeam) && tile.IsWalkable())
 		{
-			data.color[this->SelectedTeam] = 1.0f;
+			if (this->SelectedTeam == 1)
+				data.color[0] = 1.0f;
+			else if(this->SelectedTeam == 2)
+				data.color[2] = 1.0f;
 		}
 		if (this->SelectedTeam == 3)
-			if (tile.IsVisibleToTeam(1) && tile.IsVisibleToTeam(2))
+			if (tile.IsVisibleToTeam(1) && tile.IsVisibleToTeam(2) && tile.IsWalkable())
 			{
-				data.color[1] = 1.0f;
+				data.color[0] = 1.0f;
 				data.color[2] = 1.0f;
 			}
 

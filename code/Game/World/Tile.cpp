@@ -52,6 +52,11 @@ bool Tile::IsBuildable() const
 	return (featureBits & BUILD_MASK) != 0;
 }
 
+bool Tile::IsWalkable() const
+{
+	return (featureBits & WALK_MASK) != 0;
+}
+
 bool Tile::IsVisibleToAny() const
 {
 	return (visibleBits & ANY_VISIBLE) != 0;
