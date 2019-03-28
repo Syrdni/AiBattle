@@ -29,7 +29,7 @@ inline void SmelterComponent::OnLoad() {
 	entity->SetAttribute("maxHealth", instance.GetBuildingMap()["smelter"].health);
 	entity->SetAttribute("health", instance.GetBuildingMap()["smelter"].health);
 	entity->RemoveComponent<Progress>();
-	entity->AddComponent<Progress>(1);//instance.GetMaterialMap()["ironIngot"].timeToCreate);
+	entity->AddComponent<Progress>(instance.GetMaterialMap()["ironIngot"].timeToCreate);
 	entity->RemoveComponent<BuildingSiteComponent>();
 	entity->RemoveComponent<ShapeRenderer>();
 	entity->AddComponent<ShapeRenderer>(ShapeServer::GetSmelterModel());

@@ -41,7 +41,7 @@ private:
 	bool started = false;
 	float progress; 
 	int timeRequired;
-	float increment = 1.0f / EntityManager::TickRate;;
+	float increment = 1.0f / EntityManager::TickRate;
 	float timePassed = 0;
 	Ptr<InventoryComponent> inventory;
 };

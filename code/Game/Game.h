@@ -6,6 +6,7 @@
 #include "Input/Input.h"
 #include "LocalFS/LocalFileSystem.h"
 #include "Components/InventoryComponent.h"
+#include "Components/HealthComponent.h"
 #include "PyConsole.h"
 #include "ECS/EntityManager.h"
 
@@ -36,11 +37,11 @@ public:
 	//Made to check if everything is loaded before trying to get inventorycomponents
 	static bool isLoaded;
 	static bool isLoaded2;
-
-	static int units[8];
-
-
 	static bool running;
+	static int winner;
+	static int units[16];
+
+
 
 
 private:
@@ -76,15 +77,19 @@ private:
 	int _width;
 	int _height;
 
+	int hp1;
+	int hp2;
 
 	//For keeping track of inventory
 	Ptr<InventoryComponent> AIin1;
 	Ptr<InventoryComponent> AIin2;
+	Ptr<HealthComponent> AIhp1;
+	Ptr<HealthComponent> AIhp2;
 	Inventory AI1inv;
 	Inventory AI2inv;
 	
-	float ResourceHudSize[2] = { 500.0, 85.0 };
-	float unitHudSize[2] = { 120.0, 210.0 };
+	float ResourceHudSize[2] = { 750.0, 70.0 };
+	float unitHudSize[2] = { 117.0, 375.0 };
 	float rgb_Y[4] = { 1.0, 1.0, 0.0, 1.0 };
 	
 
