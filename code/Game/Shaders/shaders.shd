@@ -1,0 +1,71 @@
+//------------------------------------------------------------------------------
+//  simple tile instancing shader
+//------------------------------------------------------------------------------
+
+@vs vs
+uniform params {
+    mat4 mvp;
+};
+in vec4 position;
+in vec3 normal;
+in vec4 instance0; // position
+in vec4 instance1; // color
+in vec4 instance2; // scale
+out vec4 color;
+out vec3 N;
+void main() {
+	vec4 offset = vec4(instance0.x, instance0.y * 32.0f + instance2.y, instance0.zw);
+    gl_Position = mvp * (position * instance2 + offset);
+	color = vec4(instance1.xyz, 1.0f + instance0.y);
+	N = normal;
+}
+@end
+
+@fs fs
+in vec4 color;
+in vec3 N;
+out vec4 fragColor;
+void main() {
+	vec3 l = vec3(0, 1, 0);
+	vec3 n = normalize(N);
+	float lighting = max(dot(n, l), 0.6);
+    fragColor = vec4(color.xyz * lighting, color.w);
+}
+@end
+
+@program TileShader vs fs
+
+//------------------------------------------------------------------------------
+//  simple shape shader
+//------------------------------------------------------------------------------
+
+@vs shapeVS
+uniform params {
+    mat4 mvp;
+	mat4 model;
+};
+in vec4 position;
+in vec4 color0;
+in vec3 normal;
+out vec4 color;
+out vec3 N;
+void main() {
+    gl_Position = mvp * position;
+	color = color0;
+	N = (model * vec4(normal, 0.0)).xyz;
+}
+@end
+
+@fs shapeFS
+in vec4 color;
+in vec3 N;
+out vec4 fragColor;
+void main() {
+	vec3 l = vec3(0, 1, 0);
+	vec3 n = normalize(N);
+	float lighting = max(dot(n, l), 0.6);
+    fragColor = color * lighting;
+}
+@end
+
+@program ShapeShader shapeVS shapeFS

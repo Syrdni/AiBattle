@@ -1,0 +1,12 @@
+*.sln
+*.pyproj
+*.pyc
+mainDev1.py
+
+.vs/
+
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

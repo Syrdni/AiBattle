@@ -1,0 +1,261 @@
+{
+"units": 
+	[
+		{
+		"name" : "worker",
+		"health": 20,
+		"movementSpeed": 1,
+		"upgradeTime": 0,
+		"upgradeLocation": "none",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name" : "explorer",
+		"health": 20,
+		"movementSpeed": 1,
+		"upgradeTime": 60,
+		"upgradeLocation": "none",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name" : "soldier",
+		"health": 20,
+		"movementSpeed": 1,
+		"upgradeTime": 60,
+		"upgradeLocation": "trainingCamp",
+		"requiredMaterials":
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 1
+			}
+		},
+		{
+		"name" : "craftsman",
+		"health": 20,
+		"movementSpeed": 1,
+		"upgradeTime": 120,
+		"upgradeLocation": "none",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name" : "castle",
+		"health": 100,
+		"movementSpeed": 0,
+		"upgradeTime": 0,
+		"upgradeLocation": "none",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		}
+	],
+  "buildings": [
+    {
+      "name": "buildingSite",
+      "health": 100,
+      "requiredMaterials": {
+        "wood": 0,
+        "charcoal": 0,
+        "ironOre": 0,
+        "ironIngot": 0,
+        "sword": 0
+      },
+      "buildTime": 0,
+      "size": 1
+    },
+    {
+      "name": "charcoalPile",
+      "health": 100,
+      "requiredMaterials": {
+        "wood": 0,
+        "charcoal": 0,
+        "ironOre": 0,
+        "ironIngot": 0,
+        "sword": 0
+      },
+      "buildTime": 60,
+      "size": 1
+    },
+    {
+      "name": "smithy",
+      "health": 100,
+      "requiredMaterials": {
+        "wood": 10,
+        "charcoal": 0,
+        "ironOre": 0,
+        "ironIngot": 3,
+        "sword": 0
+      },
+      "buildTime": 180,
+      "size": 1
+    },
+    {
+      "name": "smelter",
+      "health": 100,
+      "requiredMaterials": {
+        "wood": 10,
+        "charcoal": 0,
+        "ironOre": 0,
+        "ironIngot": 0,
+        "sword": 0
+      },
+      "buildTime": 120,
+      "size": 1
+    },
+    {
+      "name": "trainingCamp",
+      "health": 100,
+      "requiredMaterials": {
+        "wood": 10,
+        "charcoal": 0,
+        "ironOre": 0,
+        "ironIngot": 0,
+        "sword": 0
+      },
+      "buildTime": 120,
+      "size": 1
+    }
+  ],
+"materials":
+	[
+		{
+		"name": "wood",
+		"timeToCreate": 3,
+		"refineLocation": "none",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name": "charcoal",
+		"timeToCreate": 30,
+		"refineLocation": "charcoalPile",
+		"requiredMaterials": 
+			{
+			"wood": 2,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name": "ironOre",
+		"timeToCreate": 3,
+		"refineLocation": "none",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 0,
+			"ironOre": 0,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name": "ironIngot",
+		"timeToCreate": 30,
+		"refineLocation": "smelter",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 3,
+			"ironOre": 2,
+			"ironIngot": 0,
+			"sword": 0
+			}
+		},
+		{
+		"name": "sword",
+		"timeToCreate": 60,
+		"refineLocation": "smithy",
+		"requiredMaterials": 
+			{
+			"wood": 0,
+			"charcoal": 2,
+			"ironOre": 0,
+			"ironIngot": 1,
+			"sword": 0
+			}
+		}
+	],
+"map":
+	[
+		{
+		"name": "tree",
+		"materialCount": 5,
+		"movementSpeed": 1,
+		"walkable": 1,
+		"buildable": 0
+		},
+		{
+		"name": "water",
+		"materialCount": 0,
+		"movementSpeed": 1,
+		"walkable": 0,
+		"buildable": 0
+		},
+		{
+		"name": "swamp",
+		"materialCount": 0,
+		"movementSpeed": 0.5,
+		"walkable": 1,
+		"buildable": 0
+		},
+		{
+		"name": "mountain",
+		"materialCount": 0,
+		"movementSpeed": 1,
+		"walkable": 0,
+		"buildable": 0
+		},
+		{
+		"name": "ground",
+		"materialCount": 0,
+		"movementSpeed": 1,
+		"walkable": 1,
+		"buildable": 1
+		},
+		{
+		"name": "iron",
+		"materialCount": 5,
+		"movementSpeed": 1,
+		"walkable": 1,
+		"buildable": 0
+		}
+	]
+}
+	
