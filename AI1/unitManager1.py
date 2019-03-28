@@ -159,7 +159,7 @@ class unitManager:
                                 unitManager.workers.remove(unit)
                                 unitManager.units[type].append(unit)
                     else:
-                        unit.forceState(upgrade(unit, type,unit.id))
+                        unit.forceState(upgrade(unit, type,0xFFFFFFFFFFFFFFFF))
                         unitManager.workers.remove(unit)
                         unitManager.units[type].append(unit)
 

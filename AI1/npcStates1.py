@@ -128,7 +128,6 @@ class upgrade(state):
         self.upgradeLocation = upgradeLocation
 
     def enter(self):
-        print("Upgrading to " + str(self.goalType))
         AICore.Upgrade(self.machine.id, self.goalType, self.upgradeLocation)
         self.machine.autoFlee = False
         pass
