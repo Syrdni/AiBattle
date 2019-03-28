@@ -100,6 +100,8 @@ class harvest(state):
     def onMessage(self, message):
         if(message["type"] == "tasksComplete"):
             self.machine.nextState()
+        if(message["type"] == "harvestFailed"):
+            self.machine.goIdle()
 
 #Picks up a resource within reach
 class collectResource(state):
@@ -214,25 +216,38 @@ class attack(state):
         self.attackPriority = attackPriority
         self.machine = machine
         self.tick = 0
+        self.canAttack = True
 
     def enter(self):
         AICore.Attack(self.machine.id, self.target)
+        pass
 
     def run(self):
-        self.tick += 1
-        print("Tick: " + str(self.tick))
-        if(self.tick % attack.reloadRate == 0):
-            AICore.Abort(self.machine.id)
-            AICore.Attack(self.machine.id, self.target)
+        #self.tick += 1
+        #print("Tick: " + str(self.tick))
+        #if(self.tick % attack.reloadRate == 0):
+        #    AICore.Abort(self.machine.id)
+        #    AICore.Attack(self.machine.id, self.target)
+        if(self.canAttack):
+            print("I'M GONNA FUCK UP THIS ID: " + str(self.target))
+            self.canAttack = False
+            self.enter()
+            #AICore.Attack(self.machine.id, self.target)
 
     def exit(self):
         #Stop path follow
         pass
 
     def onMessage(self, message):
-        #if(message["type"] == "tasksComplete"):
-         #   self.machine.goIdle()
-        pass
+        if(message["type"] == "attackFailed"):
+            print("I'M A FUCKING FAILRUE AJKFNSJKAJBGJHABBGHJABGBABGJ")
+            self.machine.goIdle()
+        elif(message["type"] == "attackSuccessful"):
+            print("I AM SUCCESSFUL ATTACKER PERSON WOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+            self.canAttack = False
+        elif(message["type"] == "canAttack"):
+            print("I'M BOUT TO FUCK THIS NEIGHBOUR UP")
+            self.canAttack = True
 
 ###########################################################################################
 

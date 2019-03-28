@@ -19,7 +19,10 @@ class exploreManager:
         for unit in explorersToBeAssigned:
 
             #Makes sure the beginning area is a bit more explored so we can quickly start accessing resources
-            if(exploreManager.baseScouters <= 10):
+            if (exploreManager.baseScouters <= 1):
+                exploreManager.baseScouters = exploreManager.baseScouters + 1
+                unit.forceState(moveTo(unit, coordinate(97, 88)))
+            elif(exploreManager.baseScouters <= 10):
                 exploreManager.baseScouters = exploreManager.baseScouters + 1
 
                 gotoX = int(castle.position.x + random.randint(-3, 30))
