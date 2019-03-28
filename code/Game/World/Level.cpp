@@ -82,7 +82,7 @@ void Level::OnLoad()
 			// Water
 			else if (str.At(z) == 'V')
 			{
-				tiles.Add(Tile(x, z, false, false, 0, 0.3f, 1.0f, 0.7f, 1.0f));
+				tiles.Add(Tile(x, z, false, false, 0.25f, 0.5f, 0.95f, 0.7f, 1.0f));
 			}
 			// Iron
 			else if (str.At(z) == 'I')
