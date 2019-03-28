@@ -11,6 +11,7 @@ void InventoryComponent::OnLoad()
 
 void InventoryComponent::OnDestroy() {
 	Game::running = false;
+	Game::winner = 3 - entity->GetAttribute<int>("team");
 	Game::Console.Log("Team %i won", 3 - entity->GetAttribute<int>("team"));
 }
 

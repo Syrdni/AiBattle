@@ -20,6 +20,7 @@ public:
 	HealthComponent(int maxHealth);
 	void OnLoad();
 	void OnReceiveMessage(const Ptr<Message>& message);
+	int getHp();
 
 	/// sets a new maximum health limit
 	void SetMaxHealth(int maxHealth);
