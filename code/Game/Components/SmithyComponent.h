@@ -35,7 +35,7 @@ inline void SmithyComponent::OnLoad()
 	entity->SetAttribute("maxHealth", instance.GetBuildingMap()["smithy"].health);
 	entity->SetAttribute("health", instance.GetBuildingMap()["smithy"].health);
 	entity->RemoveComponent<Progress>();
-	entity->AddComponent<Progress>(1);//instance.GetMaterialMap()["sword"].timeToCreate);
+	entity->AddComponent<Progress>(instance.GetMaterialMap()["sword"].timeToCreate);
 	entity->RemoveComponent<BuildingSiteComponent>();
 	entity->RemoveComponent<ShapeRenderer>();
 	entity->AddComponent<ShapeRenderer>(ShapeServer::GetSmithyModel());

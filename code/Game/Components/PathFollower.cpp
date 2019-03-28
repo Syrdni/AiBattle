@@ -10,10 +10,15 @@
 //Other
 #include "Game/Game.h"
 #include "../World/PathPlanner.h"
+#include "Game/DataContainerSingleton.h"
 
 void PathFollower::OnLoad()
 {
 	transform = entity->GetComponent<TransformComponent>();
+
+	DataContainerSingleton & data = DataContainerSingleton::GetInstance();
+	StringAtom type = entity->GetAttribute<Oryol::StringAtom>("UnitType");
+	maxVelocity = baseVelocity * data.GetUnitMap()[type].movementSpeed;
 }
 
 void PathFollower::Update()
@@ -86,3 +91,11 @@ void PathFollower::OnReceiveMessage(const Ptr<Message>& message)
 		this->currentPath.Clear();
 	}
 }
+
+void PathFollower::UpdateMaxVelocity()
+{
+	DataContainerSingleton & data = DataContainerSingleton::GetInstance();
+	StringAtom type = entity->GetAttribute<Oryol::StringAtom>("UnitType");
+	maxVelocity = baseVelocity * data.GetUnitMap()[type].movementSpeed;
+}
+
