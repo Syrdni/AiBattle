@@ -89,7 +89,7 @@ AppState::Code Game::OnInit()
 	int height = Gfx::DisplayAttrs().FramebufferHeight;
 	this->camera.projection = glm::perspectiveFov(glm::radians(70.0f), static_cast<float>(width), static_cast<float>(height), 0.01f, 1000.0f);
 	this->camera.polar = glm::vec2(glm::radians(45.0f), glm::radians(45.0f));
-	this->camera.pointOfInterest = glm::vec3(0, 0, 0) * Level::TileSize;
+	this->camera.pointOfInterest = glm::vec3(4, 0, 11) * Level::TileSize;
 
 	return App::OnInit();
 }
