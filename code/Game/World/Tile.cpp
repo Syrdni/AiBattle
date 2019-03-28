@@ -57,6 +57,11 @@ bool Tile::IsVisibleToAny() const
 	return (visibleBits & ANY_VISIBLE) != 0;
 }
 
+bool Tile::IsVisibleToTeam(int teamTag) const
+{
+	return (visibleBits & teamTag) != 0;
+}
+
 float Tile::GetSpeedMod() const
 {
 	return this->speedMod;
