@@ -493,46 +493,6 @@ inline void TaskPlanner::OnReceiveMessage(const Ptr<Message>& message) {
 	}
 	else if(message->IsA<UpgradeComplete>())
 	{
-		if (entity->HasComponent<Explorer>())
-		{
-			if (entity->GetComponent<TeamTag>()->Team == 1)
-			{
-				Game::units[1]++;
-				Game::units[0]--;
-			}
-			else
-			{
-				Game::units[5]++;
-				Game::units[4]--;
-			}
-		}
-		else if (entity->HasComponent<Soldier>())
-		{
-			if (entity->GetComponent<TeamTag>()->Team == 1)
-			{
-				Game::units[3]++;
-				Game::units[0]--;
-			}
-			else
-			{
-				Game::units[7]++;
-				Game::units[4]--;
-			}
-		}		
-		else if (entity->HasComponent<Craftsman>())
-		{
-			if (entity->GetComponent<TeamTag>()->Team == 1)
-			{
-				Game::units[2]++;
-				Game::units[0]--;
-			}
-			else
-			{
-				Game::units[6]++;
-				Game::units[4]--;
-			}
-		}
-
 		if (tasks[0]->type == Task::TaskType::UpgradeTask)
 		{
 			PyMessage msg;
