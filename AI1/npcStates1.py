@@ -271,7 +271,6 @@ class attack(state):
         #    AICore.Abort(self.machine.id)
         #    AICore.Attack(self.machine.id, self.target)
         if(self.canAttack):
-            print("I'M GONNA FUCK UP THIS ID: " + str(self.target))
             self.canAttack = False
             self.enter()
             #AICore.Attack(self.machine.id, self.target)
@@ -282,13 +281,10 @@ class attack(state):
 
     def onMessage(self, message):
         if(message["type"] == "attackFailed"):
-            print("I'M A FUCKING FAILRUE AJKFNSJKAJBGJHABBGHJABGBABGJ")
             self.machine.goIdle()
         elif(message["type"] == "attackSuccessful"):
-            print("I AM SUCCESSFUL ATTACKER PERSON WOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
             self.canAttack = False
         elif(message["type"] == "canAttack"):
-            print("I'M BOUT TO FUCK THIS NEIGHBOUR UP")
             self.canAttack = True
 
 ###########################################################################################

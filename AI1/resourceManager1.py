@@ -150,25 +150,16 @@ class resourceManager:
 
         rand = randint(0,100)
 
+        workersToBeAssigned = unitManager.getAllFree(resourceManager.workers)
 
-        if((resourceManager.resourceGoalRatio.wood+1)/(resourceManager.resourceGoalRatio.ore+1) > (resourceManager.resourceQuantity["wood"]+1)/(resourceManager.resourceQuantity["ore"]+1)):
-            if(len(resourceManager.treeList) > 0):
-                workersToBeAssigned = unitManager.getAllFree(resourceManager.workers)
-                for worker in workersToBeAssigned:
-                    for tree in resourceManager.treeList:
-                        if(tree.isAvailable):
-                            tree.isAvailable = False
-                            worker.forceState(harvest(worker, tree.ID))
-                            break
-        else:
-            if(len(resourceManager.ironList) > 0):
-                workersToBeAssigned = unitManager.getAllFree(resourceManager.workers)
-                for worker in workersToBeAssigned:
-                    for iron in resourceManager.ironList:
-                        if(iron.isAvailable):
-                            iron.isAvailable = False
-                            worker.forceState(harvest(worker, iron.ID))
-                            break
+        #Compares target wood/ore ratio to actual wood/ore ratio. Sends worker to best possible resource (with failsafes)
+        for worker in workersToBeAssigned:
+            if((resourceManager.resourceGoalRatio.wood+1)/(resourceManager.resourceGoalRatio.ore+1) > (resourceManager.resourceQuantity["wood"]+1)/(resourceManager.resourceQuantity["ore"]+1)):
+                if(not resourceManager.getTree(worker)):
+                    resourceManager.getIron(worker)
+            else:
+                if(not resourceManager.getIron(worker)):
+                    resourceManager.getTree(worker)
 
 
     #evaluate what needs to be done and append it as task
@@ -176,7 +167,25 @@ class resourceManager:
         if workerMessage.sender == idle:
             worker.changeState(checkWhatNeedsToBeDone()) #temp
 
+    #Finds the nearest unassigned tree and orders the worker to harvest it
+    def getTree(worker):
+        if(len(resourceManager.treeList) > 0):
+            for tree in resourceManager.treeList:
+                if(tree.isAvailable):
+                    tree.isAvailable = False
+                    worker.forceState(harvest(worker, tree.ID))
+                    return True
+        return False #Returns false if failed
 
+    #Finds the nearest unassigned Iron and orders the worker to harvest it
+    def getIron(worker):
+        if(len(resourceManager.ironList) > 0):
+            for iron in resourceManager.ironList:
+                if(iron.isAvailable):
+                    iron.isAvailable = False
+                    worker.forceState(harvest(worker, iron.ID))
+                    return True
+        return False #Returns false if failed
 
 
     def craft(goal):
@@ -269,93 +278,4 @@ class resourceManager:
     def retreatWorkers(workers):
         for unit in workers:
             unit.forceState(npcStates.moveTo(unit, basePosition))
-      #  if resourceQuantity["wood"] == 0 and resourceQuantity[ore] == 0:
-      #      woodTuplePair = treeDict.items()[0]
-       #     unit.forceState(harvest(unit, woodTuplePair[1]))
-
-      #  elif resourceQuantity["wood"] <= resourceQuantity[ore]:
-     #       woodTuplePair = treeDict.items()[0]
-     #       unit.forceState(harvest(unit, woodTuplePair[1]))
-
-
-      #  elif resourceQuantity["wood"] >= resourceQuantity[ore]+balanceThreshold:
-      #      ironTuplePair = ironDict.items()[0]
-       #     unit.forceState(harvest(unit, ironTuplePair[1]))
-          
-     #   else:
-      #      print("Never should have come here")
-
-    #def getXYresource(self):
-    #    x,y = coordDict["tree"].split("/")
-    #   return x,y
-
-   # resourceLocation = {''}
-   # treeList = []
-
-
-    #Is there anything we need to initiate within a resourceManager?
-
-        #kolla entitytype, om tree:
-            #lägg till i tree listan och hämta posx och posy
-        #kolla entitytype, om ironOre:
-            #lägg till i ore listan och hämta posx och posy
-
- #   def onMessage(scoutMessage): #get info from scouts and append resources to lists
- #       pass
-
- #   def setCastle(id, posx, posy):
- #       resourceManager.castleID = int(id)
- #       resourceManager.castlePos = coordinate(float(posx), float(posy))
-
-
-    #evaluate what needs to be done and append it as task
- #   def appendTask(workerMessage):
- #       if workerMessage.sender == idle:
-  #          worker.changeState(checkWhatNeedsToBeDone()) #temp
-
-    #In case we're gathering improportionately, should this run every frame?
- #   def balanceGathering():
-
-        #if we're gathering 20 or more percent more wood than iron
-   #     if resourceManager.resources.get('wood') >= (resourceManager.resources.get('iron') * resourceManager.diffPercentage):
-            #send a couple of workers cutting wood to mine iron instead
-   #         pass
-
-        #if we're gathering 20 or more percent more iron than wood
-   #     if resourceManager.resources.get('iron') >= (resourceManager.resources.get('wood') * resourceManager.diffPercentage):
-    #        #send a couple of workers mining iron to cut wood instead
-     #       pass
-
-
-        #kolla så det är rätt resurstyp
-        #kolla så resursen inte är upptagen
-        #kolla så vilken som är närmast
-
-    #Ranks and prioritizes all the available resources
-  #  def rankResourcesDistance(resources):
-
-  #      resourceDistances = []
-
-        #distance will be int because we"re working with tiles
-        #distance will be int because we're working with tiles
-   #     for resource in resources:
-            #check what resource type we need here
-   #             if resource.busy == False: #If someone is already working on the resource avoid conflicts
-    #                distance = resource.measureDistance(worker.location)
-   #                 resourceDistances.append(distance)
-     #   resourceDistances.sort()
-
-  #      for resource in resources:
-     #       if resource.measureDistance(toBase) == resourceDistances[0]:
-   #             return resource #returns closest resource
-   #     return
-
-
-    #Force the workers to retreat to base
-
     
-
-   # def retreatWorkers(workers):
-    #    for unit in workers:
-    #        unit.forceState(moveTo(unit, basePosition))
-
