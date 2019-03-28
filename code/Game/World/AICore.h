@@ -509,7 +509,7 @@ namespace AI
 				else
 					inventory_team_2->ReadyToBuild(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].materialsRequired);
 
-				Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>(5);
+				Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].upgradeTime);
 				Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Upgrading>();
 				auto taskPlanner = Game::EntityManager.GetEntity(entities[unitID])->GetComponent<TaskPlanner>();
 				taskPlanner->ClearTasks();
@@ -649,7 +649,7 @@ namespace AI
 				building->AddComponent<Discoverable>(Discoverable::Building);
 				building->AddComponent<TeamTag>(this->team);
 				building->AddComponent<HealthComponent>(buildMap["buildingSite"].health);
-				building->AddComponent<Progress>(1);//uppgradesTo.buildtime);
+				building->AddComponent<Progress>(uppgradesTo.buildtime);
 				building->AddComponent<BuildingSiteComponent>(type);
 				auto transform8 = building->AddComponent<TransformComponent>();
 				transform8->SetPosition(glm::vec3(Level::TileSize * x, Level::TileSize, Level::TileSize * z));
