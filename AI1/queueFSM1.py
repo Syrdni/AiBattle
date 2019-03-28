@@ -26,7 +26,7 @@ class queueFSM:
     #Performs state switch
     def nextState(self):
         self.exit()
-        self.stateQueue.pop()
+        self.stateQueue.pop(0)
         if(self.stateQueue != []):
             self.stateQueue[0].enter()
 
@@ -55,14 +55,16 @@ class queueFSM:
     
 
 class state: 
-    def enter(self, machine):
-        print("Default state start")
+    def __init__(self):
+        pass
+    def enter(self):
+        pass
     def run(self):
-        print("Default state run")
+        pass
     def exit(self):
-        print("Default state exit")
+        pass
     def onMessage(self, message):
-        print("Default message recieve handler")
+        pass
 
     def __eq__(self, rhs):
         return isinstance(self, rhs)

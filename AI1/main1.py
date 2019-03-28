@@ -1,24 +1,16 @@
 import AI
 from AICore1 import AICore
 Main = AI.player1
+from overseer1 import overseer
+from overseerStates1 import *
+def startup():
+    overseer.loadSettings(start)
+    pass
 
-import overseer1
 def update():
-   overseer1.overseer.update()
-   pass
+    overseer.update()
+    pass
 
 def onMessage():
     message = AICore.GetMessage()
-    if(message["type"] == "tasksComplete" or message["type"] == "moveComplete" or message["type"] == "buildComplete"):
-        unitManager.getWorkerById(message["id"]).onMessage(message)
-    elif(message["type"] == "entityFound"):
-        if(message["team"]=="0"):
-            resourceManager.onMessage(message)
-        elif(message["team"]=="1"):
-            pass
-        elif(message["team"]=="2"):
-            
-            pass
-        else:
-            pass
-
+    overseer.onMessage(message)

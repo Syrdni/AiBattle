@@ -1,29 +1,36 @@
-from AICore1 import AICore
+#from AICore1 import AICore
 import unitManager1 as unitManager
-from npcStates1 import *
+from AICore1 import AICore
+from aiTypes import coordinate
+from npcStates1 import attack
+
 
 class combatManager():
     """description of class"""
 
-    listOfEnemies = {}
+    listOfEnemies = []
+    estimatedEnemyArmySize = 0
     soldiers = unitManager.unitManager.soldiers
 
-    def onMessage():
-        message = AICore.getMessage()
+    def onMessage(message):
         if(message["type"] == "entityFound"):
             if(message["team"] == "2"):
-                listOfEnemies[int (message["ID"])] = enemy(message["posx"], message["posz"])
+                combatManager.listOfEnemies.append(Enemy(int(message["ID"]), message["type"], coordinate(float(message["posx"]), float(message["posz"]))))
+                # Army size is at least as big as we can see.
+                if(len(combatManager.listOfEnemies) > combatManager.estimatedEnemyArmySize):
+                    combatManager.estimatedEnemyArmySize = len(combatManager.listOfEnemies)
 
-        elif(message["type"]) == "entityLost":
-            del listOfEnemies[message["ID"]]
+        elif(message["type"] == "entityLost") and (message["team"] == "2"):
+            #combatManager.listOfEnemies.remove(message["ID"])
+            # Remove any enemies that have died from their estimated army size.
+            if(message["cause"] == "dead"):
+                combatManager.estimatedEnemyArmySize =-1
    
-
-    def attack(attacker, victim, required = 1):
-
-        soldiersToAttack = unitManager.unitManager.getNClosest(soldiers, required, victim.position.tileSpace())
-
-        for soldier in soldiersToAttack:
-            soldier.forceState(attack(soldier, target))
+    #def attack(attacker, victim, required = 1):
+    #    soldiersToAttack = unitManager.unitManager.getNClosest(soldiers, required, victim.position.tileSpace())
+    #
+    #    for soldier in soldiersToAttack:
+    #        soldier.forceState(attack(soldier, target))
 
     def retreat():
         pass
@@ -44,12 +51,19 @@ class combatManager():
         pass
 
     def update():
-        #thinker
-
-
+        #print(combatManager.listOfEnemies)
+        soldiersToBeAssigned = unitManager.unitManager.getAllFree(combatManager.soldiers)
+        for soldier in soldiersToBeAssigned:
+            for enemy in combatManager.listOfEnemies:
+                #AICore.Attack(soldier.id, enemy.ID)
+                soldier.forceState(attack(soldier, enemy.ID))
 #Don't I have to update the coordinate values?
-class enemy():
+class Enemy():
 
-    def __init__(self, type, posX, posY):
+    def __init__(self, id, type, pos):
+        self.ID = id
         self.type = type
-        self.pos = coordinate(posX, posY)
+        self.pos = pos
+
+    def __eq__(self, other):
+        return self.ID == other.ID

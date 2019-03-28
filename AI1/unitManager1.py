@@ -1,8 +1,10 @@
-from npcStates1 import *
+from npcStates1 import idle, upgrade, moveTo
 from npcFSM1 import *
 from math import ceil
+from random import randint
 import time
 import sys
+import overseer1 
 
 
 class ratio:
@@ -37,8 +39,20 @@ class ratio:
                      self.scouts    /  denominator,
                      self.builders  /  denominator,
                      self.soldiers  /  denominator)
+    
+    def __str__(self):
+        return str("(" + str(self.workers) + ", " + str(self.scouts) + ", " + str(self.builders) + ", " + str(self.soldiers) + ")")
+
+    def fromList(self, list):
+       if(len(list)!=4):
+           return
+       self.workers  = list[0]
+       self.scouts   = list[1]
+       self.builders = list[2]
+       self.soldiers = list[3]
+
     def __eq__(self, rhs):
-       if(len(rhs!=4)):
+       if(len(list)!=4):
            return
        self.workers  = rhs[0]
        self.scouts   = rhs[1]
@@ -60,7 +74,7 @@ class ratio:
     def getMax(self):
         max = self[0]
         maxIndex = 0
-        for index in range(1,3):
+        for index in range(1,4):
             if self[index] > max:
                 max = self[index]
                 maxIndex = index
@@ -109,8 +123,6 @@ class ratio:
         elif(key==3):
             self.soldiers = value
 
-
-
 class unitManager:
     workers = []
     scouts = []
@@ -119,15 +131,16 @@ class unitManager:
 
     units = [workers, scouts, builders, soldiers]
 
-    unitGoalRatio = ratio()
-    unitCount = 4
+    unitGoalRatio = ratio(.25,.25,.25,.25)
+    unitCount = 0
 
     def update():
-        print("Maintainging ratio....")
+        #print("Maintainging ratio....")
+        
         currentRatio = ratio.getCurrent()
         delta = unitManager.unitGoalRatio - currentRatio
-
         #Counts surplus workers and reassigns the free ones
+        
         workerSurplus = len(unitManager.workers) - ceil(unitManager.unitGoalRatio.workers*unitManager.unitCount)
         if(workerSurplus > 0):
             workersToBeAssigned = unitManager.getFree(unitManager.workers, workerSurplus)
@@ -136,25 +149,36 @@ class unitManager:
             #Assigns workers in fitting places
             for unit in workersToBeAssigned:
                 type = wishfulOutcome.getMax()
-                unit.forceState(upgrade(unit, type))
-                unitManager.workers.remove(unit)
-                unitManager.units[type].append(unit)
+                if(type != 0):
+                    if(type==npcType.SOLDIER.value):
+                        if(len(overseer1.overseer.barrackList) > 0):
+                            if(overseer1.overseer.reserveResources(0,0,0,0,1)):
+                                unit.exit()
+                                unit.stateQueue = [moveTo(unit, overseer1.overseer.barrackList[0].position), upgrade(unit, npcType.SOLDIER.value, overseer1.overseer.barrackList[0].id)]
+                                unit.enter()
+                                unitManager.workers.remove(unit)
+                                unitManager.units[type].append(unit)
+                    else:
+                        unit.forceState(upgrade(unit, type,unit.id))
+                        unitManager.workers.remove(unit)
+                        unitManager.units[type].append(unit)
+
                 wishfulOutcome[type] -= 1
         else:
             pass
 
         for list in unitManager.units:
             for unit in list:
-                #unit.update()
+                unit.update()
                 pass
-        printShit()
+        #printWholeStatus()
         
     #Returns all idle units from unitList
     def getAllFree(unitList):
         returnList = []
         for unit in unitList:
             if(unit[0] == idle):
-                returnList.extend(unit)
+                returnList.append(unit)
         return returnList
 
     #Returns 'goalQuantity' workers from unitList
@@ -181,44 +205,69 @@ class unitManager:
             if(localMinDistance < minDistance):
                 minDistance = localMinDistance
                 closestUnit = unit
+        if(positionB != None):
+            return (closestUnit, (unit.position-positionA).__len__() < (unit.position-positionB).__len__() )
         return closestUnit
+
+    #def onMessage(message):
+       # if(message["entityType"] == "worker"): #On entity created
+
+    def getUnitById(id):
+        for list in unitManager.units:
+            for unit in list:
+                if(unit.id == id):
+                    return unit
+        return "We fucked up"
+
+    def addUnit(id):
+        #unitManager.workers.append(npcBase(id,AICore.GetPos(id)))
+        unitManager.workers.append(npcBase(id,0))
+        unitManager.unitCount+=1
+        print("UnitCount: " + str(unitManager.unitCount))
 
     def onMessage(message):
-        if(message["entityType"] == "worker"): #On entity created
-            unitManager.workers.push(npcBase(int(message["ID"], getPositionRef())))
+        if(message["type"] == "entityFound"):
+            if(message["entityType"] == "worker"):
+                unitManager.addUnit(int(message["ID"]))
+        elif(message["type"] == "entityLost"):
+            unit = unitManager.getUnitById(int(message["ID"]))
 
-    def getNClosest(unitList, n, positionA, positionB = None):
-        minDistance = 500
-        closestUnit = None
+            if(unit.type == npcType.WORKER):
+                unitManager.workers.remove(unit)
+            elif(unit.type == npcType.EXPLORER):
+                unitManager.scouts.remove(unit)
+            elif(unit.type == npcType.BUILDER):
+                unitManager.builders.remove(unit)
+            elif(unit.type == npcType.SOLDIER):
+                unitManager.soldiers.remove(unit)
+            else:
+                print("Warning!!!! Could not remove unit " + message["ID"])
 
-        returnList = []
-        for index in range(0,n):
-            for unit in unitList:
-                if(unit not in returnList):
-                    localMinDistance = (unit.position-positionA).__len__()
-                    if(positionB != None):
-                        distanceB = (unit.position-positionB).__len__()
-                        localMinDistance = distanceB if distanceA > distanceB else localMinDistance
-                    if(localMinDistance < minDistance):
-                        minDistance = localMinDistance
-                        closestUnit = unit
-            returnList.append(closestUnit)
 
-        return closestUnit
-
-def printShit():
+def printWholeStatus():
     print("________________________")
     print("===Workers===")
     for worker in unitManager.workers:
         print(str(worker.stateQueue))
-        print("===Scouts===")
+    print("===Scouts===")
     for scout in unitManager.scouts:
         print(str(scout.stateQueue))
-    print("===All===")
-    for list in unitManager.units:
-        for unit in list:
-            print(str(unit.stateQueue))
+    print("===Builders===")
+    for builder in unitManager.builders:
+        print(str(builder.stateQueue))
+    print("===Soldiers===")
+    for soldier in unitManager.soldiers:
+        print(str(soldier.stateQueue))
 
+    print("________________________")
+
+def printStatus():
+    
+    print("________________________")
+    print("Workers  :" + str(len(unitManager.workers)))
+    print("Scouts   :" + str(len(unitManager.scouts)))
+    print("Builders :" + str(len(unitManager.builders)))
+    print("Soldiers :" + str(len(unitManager.soldiers)))
     print("________________________")
 
 #printShit()

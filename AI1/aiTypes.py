@@ -1,5 +1,5 @@
 from enum import Enum
-
+from AICore1 import AICore
 class npcType(Enum):
     WORKER = 0
     EXPLORER = 1
@@ -9,13 +9,21 @@ class npcType(Enum):
 class buildingType(Enum):
     CASTLE  = 0
     COAL    = 1
-    FORGE   = 2
-    SMITH   = 3
+    SMITH   = 2
+    BARRACK = 3
+    FORGE   = 4
 
 class coordinate:
+    worldspaceRatio = 2
     def __init__(self, x = 0, y = 0):
         self.x = x
         self.y = y
+
+    def fromStruct(struct):
+        return coordinate(int(struct.worldX/AICore.tileSize), int(struct.worldZ/AICore.tileSize))
+
+    def fromWorldSpace(x,y):
+        return coordinate(int(x/AICore.tileSize), int(y/AICore.tileSize))
 
     def __add__(self, rhs):
         return coordinate(self.x + rhs.x, self.y + rhs.y)
@@ -23,8 +31,12 @@ class coordinate:
         return coordinate(self.x - rhs.x, self.y - rhs.y)
     def __len__(self):
         return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
+    def __floordiv_(self, rhs):
+        return coordinate(int(self.x/rhs), int(self.y/rhs))
+    def __str__(self):
+        return "(" + str(self.x) + "," + str(self.y) + ")"
 
-class ratio:
+class unitRatio:
     def __init__(self, workers = 0.5, scouts = 0.5, builders = 0, soldiers = 0):
         self.workers  = workers
         self.scouts   = scouts
@@ -32,34 +44,34 @@ class ratio:
         self.soldiers = soldiers
 
     def __add__(self, rhs):
-        return ratio(self.workers   +  rhs.workers,
+        return unitRatio(self.workers   +  rhs.workers,
                      self.scouts    +  rhs.scouts,
                      self.builders  +  rhs.builders,
                      self.soldiers  +  rhs.soldiers)
 
     def __sub__(self, rhs):
-        return ratio(self.workers   -  rhs.workers,
+        return unitRatio(self.workers   -  rhs.workers,
                      self.scouts    -  rhs.scouts,
                      self.builders  -  rhs.builders,
                      self.soldiers  -  rhs.soldiers)
 
     def __mul__(self, factor):
-        return ratio(self.workers   *  factor,
+        return unitRatio(self.workers   *  factor,
                      self.scouts    *  factor,
                      self.builders  *  factor,
                      self.soldiers  *  factor)
 
     def __truediv__(self, denominator):
         if denominator == 0:
-            return ratio(0,0,0,0)
-        return ratio(self.workers   /  denominator,
+            return unitRatio(0,0,0,0)
+        return unitRatio(self.workers   /  denominator,
                      self.scouts    /  denominator,
                      self.builders  /  denominator,
                      self.soldiers  /  denominator)
 
     #Replaces all negative values with 0
     def clearNegatives(self):
-        ret = ratio(self.workers, self.scouts, self.builders, self.soldiers)
+        ret = unitRatio(self.workers, self.scouts, self.builders, self.soldiers)
         for index in range(0,3):
             if(ret[index] < 0): 
                 ret[index] = 0
@@ -67,7 +79,7 @@ class ratio:
 
     def normalize(self):
         sum = self.workers + self.scouts + self.builders + self.soldiers
-        return ratio(self.workers, self.scouts, self.builders, self.soldiers)/sum
+        return unitRatio(self.workers, self.scouts, self.builders, self.soldiers)/sum
 
     def getMax(self):
         max = self[0]
@@ -97,7 +109,7 @@ class ratio:
         return min
 
     def getCurrent():
-        return ratio(len(unitManager.workers), len(unitManager.scouts), len(unitManager.builders), len(unitManager.soldiers))/unitManager.unitCount
+        return unitRatio(len(unitManager.workers), len(unitManager.scouts), len(unitManager.builders), len(unitManager.soldiers))/unitManager.unitCount
 
     def __getitem__(self, key):
         if(key==0):

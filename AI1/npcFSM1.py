@@ -2,7 +2,7 @@
 from enum import Enum
 from queueFSM1 import queueFSM
 from npcStates1 import idle
-from types import *
+from aiTypes import *
 
 
 class npcBase(queueFSM):
@@ -15,11 +15,14 @@ class npcBase(queueFSM):
         
     #Machine update
     def update(self):
-        if(self.stateQueue != []): 
+        if(self.hasState()): 
             self.stateQueue[0].run()
-        if(autoFlee):
-            if(enemiesAround()):
-                self.stateQueue.append(flee())
+        else:
+            pass
+            #self.stateQueue.append(npcState.idle())
+        #if(self.autoFlee):
+            #if(enemiesAround()):
+                #self.stateQueue.append(flee())
 
 
     def goIdle(self):
@@ -28,7 +31,14 @@ class npcBase(queueFSM):
         self.enter()
 
     def onMessage(self, message):
-        self[0].onMessage(message)
+        if(self.hasState()): 
+            self[0].onMessage(message)
+
+
+    def hasState(self):
+        if(len(self.stateQueue)==0): 
+            self.stateQueue = [idle()]
+        return True
 
 class soldier(npcBase):
     def __init__(self,id = None, startState = idle()):

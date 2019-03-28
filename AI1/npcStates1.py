@@ -21,19 +21,23 @@
 #   
 #   Soldier:
 #     moveToAndAttack:
-
-from types import *
-from combatManager1 import *
-from AICore1 import AICore
-from queueFSM1 import state
-
-#-----GENERAL-----
-
 #To keep base state separate from idle state (precaution)
+
+
+from queueFSM1 import state
 class idle(state):
     def enter(self):
         #Send message to handler and ask for new task
         pass
+
+from aiTypes import *
+from attackPriorityList1 import attackPriorityList
+from AICore1 import AICore
+import overseer1 
+#from architectManager1 import architectManager
+
+#-----GENERAL-----
+
 
 class moveTo(state):
     def __init__(self, machine, destination):
@@ -41,13 +45,15 @@ class moveTo(state):
         self.machine = machine
 
     def enter(self):
-        AICore.moveTo(self.machine.id, self.destination.x, self.destination.z)
+        AICore.MoveTo(self.machine.id, self.destination.x, self.destination.y)
 
     def exit(self):
-        AICore.cancel(self.machine.id)
+        #AICore.cancel(self.machine.id)
+        print("Moveto exit")
+        pass
 
     def onMessage(self, message):
-        if(message["type"] == moveComplete):
+        if(message["type"] == "moveComplete"):
             self.machine.nextState()
         
 
@@ -62,7 +68,7 @@ class flee(state):
     def run(self):
 
         #Search for nearby enemies
-        enemiesAround = combatManager.getEnemiesWithinRange(position, radius) #Get enemies within range
+        #enemiesAround = combatManager.getEnemiesWithinRange(position, radius) #Get enemies within range
         deltaSum = (0,0)
 
         if(len(enemiesAround)==0):
@@ -84,21 +90,16 @@ class flee(state):
 #-----WORKER-----
 
 class harvest(state):
-    def __init__(self, machine, objectToHarvest): #harvestObject = ID perhaps??
+    def __init__(self, machine, objectToHarvest):
         self.objectToHarvest = objectToHarvest
         self.machine = machine
 
-    def run(self):
-        if((self.machine.position-self.objectToHarvest.position).abs()<=(1,1)): #Range check
-            #Performs harvesting
-            pass
-        else:
-            #Change state to moveTo(position of object to harvest)
-            machine.goIdle()
+    def enter(self):
+        AICore.HarvestResource(self.machine.id, self.objectToHarvest)
 
-        if(not objectToHarvest.exists):
-            #Do next state
-            pass
+    def onMessage(self, message):
+        if(message["type"] == "tasksComplete"):
+            self.machine.nextState()
 
 #Picks up a resource within reach
 class collectResource(state):
@@ -121,15 +122,22 @@ class returnResource(state):
             self.machine.dropOff()
 
 class upgrade(state):
-    def __init__(self, machine, goalType):
+    def __init__(self, machine, goalType, upgradeLocation):
         self.goalType = goalType
         self.machine = machine
+        self.upgradeLocation = upgradeLocation
+
     def enter(self):
-        #AICore.upgrade(machine.id, self.goalType, machine.id)
+        print("Upgrading to " + str(self.goalType))
+        AICore.Upgrade(self.machine.id, self.goalType, self.upgradeLocation)
+        self.machine.autoFlee = False
         pass
+
     def onMessage(self, message):
-        if(message["type"] == upgradeComplete):
-            self.machine.changeType(self.goalType)
+        if(message["type"] == "upgradeComplete" or message["type"] == "tasksComplete" ):
+            self.machine.type = self.goalType
+            self.machine.goIdle()
+
 
 #-----BUILDER-----
 
@@ -137,9 +145,30 @@ class build(state):
     def __init__(self, machine, building):
         self.building = building
         self.machine = machine
-    def run(self):
-        self.buildling.addProgress()
-        if(building.isComplete()):
+    def enter(self):
+        print(self.building.id)
+        AICore.Build(self.machine.id, self.building.id)
+    def exit(self):
+        if(not self.building.isComplete):
+            self.building.currentlyWorkedOn = False
+    def onMessage(self, message):
+        if(message["type"] == "buildComplete" or message["type"] == "tasksComplete"):
+            self.building.isComplete = True
+            self.machine.forceState(moveTo(self.machine,overseer1.castle.position))
+
+class craft(state):
+    def __init__(self, machine, building, resource):
+        self.machine = machine
+        self.building = building
+        self.resource = resource
+    def enter(self):
+        AICore.Craft(self.machine.id, self.building.id)
+    def exit(self):
+        pass
+    def onMessage(self, message):
+        if(message["type"] == "craftComplete" or message["type"] == "tasksComplete"):
+            overseer1.overseer.addResource(self.resource)
+            self.building.isBusy = False
             self.machine.goIdle()
 
 #-----SOLDIER-----
@@ -147,7 +176,7 @@ class build(state):
 #Basically moveTo but is allowed to attack enemies and buildings if deemed appropriate by given attackPriorityList
 class moveToAndAttack(state):
 
-    def __init__(self, machine, destination, attackPriority = attackPrioritylist()):
+    def __init__(self, machine, destination, attackPriority = attackPriorityList()):
         self.destination = destination
         self.attackPriority = attackPriority
         self.machine = machine
@@ -179,24 +208,31 @@ class moveToAndAttack(state):
         pass
 
 class attack(state):
+    reloadRate = 100
 
-    def __init__(self, machine, target, attackPriority = attackPrioritylist()):
+    def __init__(self, machine, target, attackPriority = attackPriorityList()):
         self.target = target
         self.attackPriority = attackPriority
         self.machine = machine
+        self.tick = 0
 
     def enter(self):
-        AICore.attack(self.machine.id, self.target.id)
+        AICore.Attack(self.machine.id, self.target)
 
-    def update(self):
-        pass
+    def run(self):
+        self.tick += 1
+        print("Tick: " + str(self.tick))
+        if(self.tick % attack.reloadRate == 0):
+            AICore.Abort(self.machine.id)
+            AICore.Attack(self.machine.id, self.target)
 
     def exit(self):
         #Stop path follow
         pass
 
     def onMessage(self, message):
-        #Parse messages from pathFollower
+        #if(message["type"] == "tasksComplete"):
+         #   self.machine.goIdle()
         pass
 
 ###########################################################################################
