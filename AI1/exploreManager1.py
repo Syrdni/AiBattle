@@ -1,7 +1,8 @@
 import unitManager1 as unitManager
-from npcStates1 import moveTo
+from npcStates1 import moveTo, walkInDirection
 from aiTypes import coordinate
 from overseer1 import castle
+from math import tan
 import random
 
 
@@ -10,6 +11,15 @@ class exploreManager:
     scouts = unitManager.unitManager.scouts
 
     baseScouters = 0
+    rayCount = 5
+
+    #Min and max coordinates of the map.
+    min = coordinate(3,3)
+    max = coordinate(97,97)
+
+    #Defines same for walkInDirection state
+    walkInDirection.max = max
+    walkInDirection.min = min
 
     def buildPath(positionA, positionB):
         roadBuilder = unitManager.unitManager.getClosest(scouts, positionA, positionB)
@@ -18,21 +28,27 @@ class exploreManager:
         explorersToBeAssigned = unitManager.unitManager.getAllFree(exploreManager.scouts)
         for unit in explorersToBeAssigned:
 
-            #Makes sure the beginning area is a bit more explored so we can quickly start accessing resources
-            if (exploreManager.baseScouters <= 1):
-                exploreManager.baseScouters = exploreManager.baseScouters + 1
-                unit.forceState(moveTo(unit, coordinate(97, 88)))
-            elif(exploreManager.baseScouters <= 10):
-                exploreManager.baseScouters = exploreManager.baseScouters + 1
+            #Takes all explorers but one, applies area explore algorithm
+            if(exploreManager.baseScouters < exploreManager.rayCount-1):
+                exploreManager.baseScouters += 1
 
-                gotoX = int(castle.position.x + random.randint(-3, 30))
-                gotoY = int(castle.position.y + random.randint(-10, 10))
-                print("X: ", gotoX, " Y: ", gotoY)
-
-                unit.forceState(moveTo(unit, coordinate(gotoX, gotoY)))
-
+                #Calculates tan values for rays depending on # of explorers
+                tanValue = tan(1.55*max(min(exploreManager.baseScouters/exploreManager.rayCount, 1),0))
+                
+                #Adds 4 walkInDirection to unit stateQueue
+                unit.stateQueue = [moveTo(unit, exploreManager.min),walkInDirection(unit, tanValue, exploreManager.max*0.9, coordinate()), 
+                                   moveTo(unit, exploreManager.max), walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.2), 
+                                   moveTo(unit, exploreManager.max*0.2), walkInDirection(unit, tanValue, exploreManager.max*0.8, coordinate()), 
+                                   moveTo(unit, exploreManager.max*0.8), walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.4)]
+                unit.enter()
+            #One explorer explores across the map, to connect the different routes that will be created at the start
+            elif(exploreManager.baseScouters < exploreManager.rayCount):
+                unit.stateQueue = [moveTo(unit, coordinate(int(exploreManager.max.x*0.8), int(exploreManager.max.y*0.2))),
+                                   moveTo(unit, coordinate(int(exploreManager.max.x*0.2), int(exploreManager.max.y*0.8)))]
+                unit.enter()
+            #When main explore algorithm is done, explore randomly
             else:
-                x = random.randint(3, 97)
-                y = random.randint(3, 97)
+                x = random.randint(exploreManager.min.x, exploreManager.max.x)
+                y = random.randint(exploreManager.min.y, exploreManager.max.y)
 
-                unit.forceState(moveTo(unit, coordinate(x, y)));
+                unit.forceState(moveTo(unit, coordinate(x,y)))

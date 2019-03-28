@@ -25,10 +25,18 @@ class coordinate:
     def fromWorldSpace(x,y):
         return coordinate(int(x/AICore.tileSize), int(y/AICore.tileSize))
 
+    def min(self):
+        return self.x if self.x < self.y else self.y
+    
+    def _int_(self):
+        return coordinate(int(self.x),int(self.y))
+
     def __add__(self, rhs):
         return coordinate(self.x + rhs.x, self.y + rhs.y)
     def __sub__(self, rhs):
         return coordinate(self.x - rhs.x, self.y - rhs.y)
+    def __mul__(self, rhs):
+        return coordinate(int(self.x * rhs), int(self.y * rhs))
     def __len__(self):
         return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
     def __floordiv_(self, rhs):

@@ -55,7 +55,49 @@ class moveTo(state):
     def onMessage(self, message):
         if(message["type"] == "moveComplete"):
             self.machine.nextState()
-        
+
+#Walks in a direction determined by given angle (tangent). Makes new pathfind every 'step' units
+class walkInDirection(state):
+    step = 10
+    #Defines map area (defined by exploreManager)
+    min = coordinate() 
+    max = coordinate()
+
+    def __init__(self, machine, tangent, maxThreshold, minThreshold):
+        self.machine = machine
+        self.tangent = tangent
+        self.canMove = True
+        self.dx = int(walkInDirection.step * tangent)
+        self.dy = int(walkInDirection.step / tangent)
+        self.maxThreshold = maxThreshold
+        self.minThreshold = minThreshold 
+
+    def enter(self):
+        self.lastPosition = coordinate.fromStruct(AICore.GetPos(self.machine.id))
+        print(str(self.lastPosition))
+
+    def run(self):
+        #Checks if currently pathfinding
+        if(self.canMove):
+            #Checks if within search area, goes to next state if not
+            if(self.lastPosition.x > self.maxThreshold.x or self.lastPosition.y > self.maxThreshold.y or
+               self.lastPosition.x < self.minThreshold.x or self.lastPosition.y < self.minThreshold.y):
+                self.machine.nextState()
+            else:
+                #Calculates new position and pathfinds there
+                self.canMove = False
+                self.lastPosition.x = max(min(self.lastPosition.x + self.dx, self.max.x),self.min.x)
+                self.lastPosition.y = max(min(self.lastPosition.y + self.dy, self.max.y),self.min.y)
+                AICore.MoveTo(self.machine.id, self.lastPosition.x, self.lastPosition.y)
+
+    def exit(self):
+        #AICore.cancel(self.machine.id)
+        print("Moveto exit")
+        pass
+
+    def onMessage(self, message):
+        if(message["type"] == "moveComplete"):
+            self.canMove = True
 
 
 #Escapes from nearby enemies for a couple of ticks (might change to use delayed messages instead)

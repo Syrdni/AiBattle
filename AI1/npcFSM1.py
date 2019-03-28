@@ -11,7 +11,6 @@ class npcBase(queueFSM):
         self.type = npcType.WORKER
         self.autoFlee = True
         self.stateQueue = [startState]
-        self.position = positionRef
         
     #Machine update
     def update(self):
