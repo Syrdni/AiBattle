@@ -231,6 +231,8 @@ void Game::DrawUI()
 		ImGui::Text("Entities: %i / %i", Game::EntityManager.GetNumEntities(), ECSConfig::MaxNumEntities);
 		ImGui::Separator();
 		ImGui::Checkbox("Show Console", &this->showConsole);
+		ImGui::Text("Fog of War");
+		ImGui::SliderInt("", &Level::SelectedTeam, 0, 3);
 	}
 	ImGui::End();
 

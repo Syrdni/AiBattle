@@ -28,8 +28,12 @@ public:
 
 	bool IsBuildable() const;
 
+	bool IsWalkable() const;
+
 	/// checks if the tile is visible
 	bool IsVisibleToAny() const;
+	/// checks if the tile is visible to a team
+	bool IsVisibleToTeam(int teamTag) const;
 
 	/// retrieves the speed modifier
 	float GetSpeedMod() const;

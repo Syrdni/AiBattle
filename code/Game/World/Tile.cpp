@@ -52,9 +52,19 @@ bool Tile::IsBuildable() const
 	return (featureBits & BUILD_MASK) != 0;
 }
 
+bool Tile::IsWalkable() const
+{
+	return (featureBits & WALK_MASK) != 0;
+}
+
 bool Tile::IsVisibleToAny() const
 {
 	return (visibleBits & ANY_VISIBLE) != 0;
+}
+
+bool Tile::IsVisibleToTeam(int teamTag) const
+{
+	return (visibleBits & teamTag) != 0;
 }
 
 float Tile::GetSpeedMod() const

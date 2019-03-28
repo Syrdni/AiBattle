@@ -28,6 +28,7 @@
 #include "Game/Game.h"
 
 const float Level::TileSize = 2.0f;
+int Level::SelectedTeam = 0;
 
 Level::Level(const char* data)
 {
@@ -167,11 +168,28 @@ void Level::Update()
 	{
 		auto& tile = this->tiles[i];
 		auto& info = tile.GetDrawInfo();
-		if(tile.IsVisibleToAny())
+
+		if (tile.IsVisibleToAny())
 		{
 			info.position.y *= 0.85f;
 		}
-		this->instanceData[i] = info;
+
+		auto data = info;
+		if (tile.IsVisibleToTeam(this->SelectedTeam) && tile.IsWalkable())
+		{
+			if (this->SelectedTeam == 1)
+				data.color[0] = 1.0f;
+			else if(this->SelectedTeam == 2)
+				data.color[2] = 1.0f;
+		}
+		if (this->SelectedTeam == 3)
+			if (tile.IsVisibleToTeam(1) && tile.IsVisibleToTeam(2) && tile.IsWalkable())
+			{
+				data.color[0] = 1.0f;
+				data.color[2] = 1.0f;
+			}
+
+		this->instanceData[i] = data;
 	}
 	Gfx::UpdateVertices(this->drawState.Mesh[1], this->instanceData, this->numTiles * sizeof(TileDrawInfo));
 

@@ -59,6 +59,9 @@ public:
 
 	/// tile size
 	static const float TileSize;
+
+	/// selected team
+	static int SelectedTeam;
 private:
 	void SetupDrawing();
 
