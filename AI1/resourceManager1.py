@@ -181,7 +181,6 @@ class resourceManager:
 
     def craft(goal):
         #Calculates how much of every resource resourceManager wants to have
-        print(str(resourceManager.resourceQuantity))
 
         #If lacking a craftable resource, try to craft it
         if(resourceManager.resourceQuantity["coal"] < goal.coal):
@@ -203,12 +202,10 @@ class resourceManager:
     def assignWorker(buildings, resource):
         unit = unitManager.getFree(unitManager.builders, 1)
         if(len(unit)==0):
-            print("Could not find builder")
             return False
         unit = unit[0]
         building = architectManager.getFreeBuilding(buildings)
         if(building==None):
-            print("Could not find house")
             return False
         unit.forceState(craft(unit, building, resource))
         building.isBusy = True

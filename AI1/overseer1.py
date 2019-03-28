@@ -67,7 +67,7 @@ class overseer():
 
     def onMessage(message):
         #print("Message received: " + str(message))
-        if(message["type"] == "tasksComplete" or message["type"] == "moveComplete" or message["type"] == "upgradeComplete" or message["type"] == "craftComplete"):
+        if(message["type"] == "tasksComplete" or message["type"] == "moveComplete" or message["type"] == "upgradeComplete" or message["type"] == "craftComplete" or message["type"] == "harvestFailed" or message["type"] == "attackSuccessful" or message["type"] == "attackFailed" or message["type"] == "canAttack"):
             unit = unitManager.getUnitById(int(message["ID"]))
             unit.onMessage(message)
         elif(message["type"] == "dropOffComplete"):

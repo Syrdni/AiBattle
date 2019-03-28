@@ -15,7 +15,7 @@ class combatManager():
     def onMessage(message):
         if(message["type"] == "entityFound"):
             if(message["team"] == "2"):
-                combatManager.listOfEnemies.append(Enemy(int(message["ID"]), message["type"], coordinate(float(message["posx"]), float(message["posz"]))))
+                combatManager.listOfEnemies.append(Enemy(int(message["ID"]), message["entityType"], coordinate(float(message["posx"]), float(message["posz"]))))
                 # Army size is at least as big as we can see.
                 if(len(combatManager.listOfEnemies) > combatManager.estimatedEnemyArmySize):
                     combatManager.estimatedEnemyArmySize = len(combatManager.listOfEnemies)
@@ -25,6 +25,7 @@ class combatManager():
             # Remove any enemies that have died from their estimated army size.
             if(message["cause"] == "dead"):
                 combatManager.estimatedEnemyArmySize =-1
+
    
     #def attack(attacker, victim, required = 1):
     #    soldiersToAttack = unitManager.unitManager.getNClosest(soldiers, required, victim.position.tileSpace())
@@ -53,10 +54,16 @@ class combatManager():
     def update():
         #print(combatManager.listOfEnemies)
         soldiersToBeAssigned = unitManager.unitManager.getAllFree(combatManager.soldiers)
-        for soldier in soldiersToBeAssigned:
-            for enemy in combatManager.listOfEnemies:
+        for enemy in combatManager.listOfEnemies:
+            if enemy.type == "castle":
+                for soldier in soldiersToBeAssigned:
+                    soldier.forceState(attack(soldier, enemy.ID))
+
+        
+        #for soldier in soldiersToBeAssigned:
+            #for enemy in combatManager.listOfEnemies:
                 #AICore.Attack(soldier.id, enemy.ID)
-                soldier.forceState(attack(soldier, enemy.ID))
+                #soldier.forceState(attack(soldier, enemy.ID))
 #Don't I have to update the coordinate values?
 class Enemy():
 
