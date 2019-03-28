@@ -269,6 +269,12 @@ inline void TaskPlanner::NextTask() {
 			msg["type"] = "dropOffComplete";
 			auto idStr = std::to_string(entity->Id.Value);
 			msg["ID"] = const_cast<char*>(idStr.c_str());
+			if (materials.wood) {
+				msg["resourceType"] = "tree";
+			}
+			else {
+				msg["resourceType"] = "ironOre";
+			}
 			SendMessage(msg);
 		}
 		else if (task->type == Task::TaskType::DropTask)
