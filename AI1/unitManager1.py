@@ -238,8 +238,6 @@ class unitManager:
                 unitManager.builders.remove(unit)
             elif(unit.type == npcType.SOLDIER):
                 unitManager.soldiers.remove(unit)
-            else:
-                print("Warning!!!! Could not remove unit " + message["ID"])
 
 
 def printWholeStatus():

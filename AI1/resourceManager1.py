@@ -88,7 +88,6 @@ class Tree:
         self.isAvailable = True
         self.position = position
         tempDistanceCoord = (position - castle.position).getAbs()
-        print(castle.__str__() + ":" + str(position) + str(tempDistanceCoord))
         tempX = tempDistanceCoord.x
         tempY = tempDistanceCoord.y
         #Manhattan distance, except without the smaller axis because we can move diagonally
@@ -232,13 +231,11 @@ class resourceManager:
 
         elif(message["type"] == "entityLost"):
             if(message["entityType"] == "tree"):
-                print("BEGONE THOT")
                 for tree in resourceManager.treeList:
                     if(tree.ID == int(message["ID"])):
                        resourceManager.treeList.remove(tree)
             
             elif(message["entityType"] == "ironOre"):
-                print("BEGONE THOT")
                 for iron in resourceManager.ironList:
                     if(iron.ID == int(message["ID"])):
                        resourceManager.ironList.remove(iron)

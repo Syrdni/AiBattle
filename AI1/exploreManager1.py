@@ -51,7 +51,6 @@ class exploreManager:
                 unit.forceState(moveTo(unit, coordinate(x,y)))
 
     def getQueue(unit, tanValue):
-        print(castle.__str__())
         if(castle.team == 1):
             return [
             moveTo(unit, exploreManager.min),       walkInDirection(unit, tanValue, exploreManager.max*0.9, coordinate()), 

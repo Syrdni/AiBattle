@@ -42,25 +42,21 @@ class architectManager:
                 if(overseer1.overseer.reserveResources(10,0,0,0,0)): #Tries to reserve cost, aborts if failed
                     buildLocation = overseer1.castle.position + architectManager.buildQueue[0][1]
                     architectManager.spawnWorksite(buildingType.COAL, buildLocation)
-                    print("Placed kiln")
                     
             elif(architectManager.buildQueue[0][0] == buildingType.FORGE):
                 if(overseer1.overseer.reserveResources(10,0,0,0,0)): #Tries to reserve cost, aborts if failed
                     buildLocation = overseer1.castle.position + architectManager.buildQueue[0][1]
                     architectManager.spawnWorksite(buildingType.FORGE, buildLocation)
-                    print("Placed forge")
 
             elif(architectManager.buildQueue[0][0] == buildingType.SMITH):
                 if(overseer1.overseer.reserveResources(10,0,0,3,0)): #Tries to reserve cost, aborts if failed
                     buildLocation = overseer1.castle.position + architectManager.buildQueue[0][1]
                     architectManager.spawnWorksite(buildingType.SMITH, buildLocation)
-                    print("Placed smith")
 
             elif(architectManager.buildQueue[0][0] == buildingType.BARRACK):
                 if(overseer1.overseer.reserveResources(10,0,0,0,0)): #Tries to reserve cost, aborts if failed
                     buildLocation = overseer1.castle.position + architectManager.buildQueue[0][1]
                     architectManager.spawnWorksite(buildingType.BARRACK, buildLocation)
-                    print("Placed barrack")
 
 
         #Looks for worksites to place workers on
@@ -95,7 +91,6 @@ class architectManager:
     def checkComplete():
         for site in architectManager.workSites:
             if(site.isComplete):
-                print("TYPE===" + str(site.type))
                 architectManager.workSites.remove(site)
                 if(site.type == buildingType.COAL):
                     architectManager.kilnList.append(site)
@@ -110,7 +105,6 @@ class architectManager:
 
     def onMessage(message):
         if(message["type"] == "buildComplete"):
-            print("CHECKING FOR COMPLETED BUILDINGS")
             architectManager.checkComplete()
         elif(message["type"] == "entityFound"):
             if(message["entityType"] == "buildingSite"):

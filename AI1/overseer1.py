@@ -31,7 +31,6 @@ class overseer():
 
     def importFromJson(path):
         path = overseer.aiFolder.join("./test.json")
-        print(str(path))
         with open(path) as json_file:
             overseer.currentJson = json.load(json_file)
 
@@ -103,8 +102,6 @@ class overseer():
                 pass
 
 
-        else:
-            print("Message not parsed: " + str(message))
 
     def reserveResources(wood, ore, coal, ingot, sword):
         return resourceManager.reserveResources(wood, ore, coal, ingot, sword)
