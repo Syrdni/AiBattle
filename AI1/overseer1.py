@@ -3,6 +3,10 @@ from aiTypes import *
 class castle:
     ID = None
     position = coordinate()
+    team = 0
+
+    def __str__():
+        return ("Castle: " + str(castle.team) + " @ " + str(castle.position))
 
 from queueFSM1 import queueFSM, state
 
@@ -87,6 +91,7 @@ class overseer():
                 if(message["entityType"] == "castle"):
                     castle.id = int(message["ID"])
                     castle.position = coordinate.fromWorldSpace(float(message["posx"]), float(message["posz"]))
+                    castle.team = overseer.team
                 elif(message["entityType"] == "buildingSite" or message["entityType"] == "trainingCamp" or message["entityType"] == "kiln" or message["entityType"] == "smithy" or message["entityType"] == "smelter"):
                     architectManager.onMessage(message)
                     pass

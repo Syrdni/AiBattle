@@ -87,7 +87,8 @@ class Tree:
         self.ID = id
         self.isAvailable = True
         self.position = position
-        tempDistanceCoord = position - castle.position
+        tempDistanceCoord = (position - castle.position).getAbs()
+        print(castle.__str__() + ":" + str(position) + str(tempDistanceCoord))
         tempX = tempDistanceCoord.x
         tempY = tempDistanceCoord.y
         #Manhattan distance, except without the smaller axis because we can move diagonally
@@ -151,7 +152,6 @@ class resourceManager:
         rand = randint(0,100)
 
         workersToBeAssigned = unitManager.getAllFree(resourceManager.workers)
-
         #Compares target wood/ore ratio to actual wood/ore ratio. Sends worker to best possible resource (with failsafes)
         for worker in workersToBeAssigned:
             if((resourceManager.resourceGoalRatio.wood+1)/(resourceManager.resourceGoalRatio.ore+1) > (resourceManager.resourceQuantity["wood"]+1)/(resourceManager.resourceQuantity["ore"]+1)):
@@ -223,7 +223,7 @@ class resourceManager:
     def onMessage(message):
         if(message["type"] == "entityFound"):
             if(message["entityType"] == "tree"):
-                entityPos = coordinate(float(message["posx"]),float(message["posz"]))
+                entityPos = coordinate.fromWorldSpace(float(message["posx"]),float(message["posz"]))
                 resourceManager.treeList.add(Tree(int(message["ID"]), entityPos))
             
             elif(message["entityType"] == "ironOre"):
@@ -232,11 +232,13 @@ class resourceManager:
 
         elif(message["type"] == "entityLost"):
             if(message["entityType"] == "tree"):
+                print("BEGONE THOT")
                 for tree in resourceManager.treeList:
                     if(tree.ID == int(message["ID"])):
                        resourceManager.treeList.remove(tree)
             
             elif(message["entityType"] == "ironOre"):
+                print("BEGONE THOT")
                 for iron in resourceManager.ironList:
                     if(iron.ID == int(message["ID"])):
                        resourceManager.ironList.remove(iron)

@@ -3,6 +3,7 @@ import unitManager1 as unitManager
 from AICore1 import AICore
 from aiTypes import coordinate
 from npcStates1 import attack
+from overseer1 import castle
 
 
 class combatManager():
@@ -14,17 +15,18 @@ class combatManager():
 
     def onMessage(message):
         if(message["type"] == "entityFound"):
-            if(message["team"] == "2"):
+            if(message["team"] != castle.team):
                 combatManager.listOfEnemies.append(Enemy(int(message["ID"]), message["entityType"], coordinate(float(message["posx"]), float(message["posz"]))))
                 # Army size is at least as big as we can see.
                 if(len(combatManager.listOfEnemies) > combatManager.estimatedEnemyArmySize):
                     combatManager.estimatedEnemyArmySize = len(combatManager.listOfEnemies)
 
-        elif(message["type"] == "entityLost") and (message["team"] == "2"):
+        elif(message["type"] == "entityLost") and (message["team"] != castle.team):
             #combatManager.listOfEnemies.remove(message["ID"])
             # Remove any enemies that have died from their estimated army size.
             if(message["cause"] == "dead"):
                 combatManager.estimatedEnemyArmySize =-1
+
 
    
     #def attack(attacker, victim, required = 1):
@@ -58,6 +60,8 @@ class combatManager():
             if enemy.type == "castle":
                 for soldier in soldiersToBeAssigned:
                     soldier.forceState(attack(soldier, enemy.ID))
+
+
 
         
         #for soldier in soldiersToBeAssigned:
