@@ -21,11 +21,13 @@ public:
 	void OnLoad();
 	void Update();
 	void OnReceiveMessage(const Ptr<Message>& message);
+	void UpdateMaxVelocity();
 private:
 	glm::vec3 velocity;
 	glm::vec3 force;
 	float mass = 4.0f;
-	float maxVelocity = 0.2f;
+	float maxVelocity = 0.0033f;
+	float baseVelocity = 0.0033f;
 
 	// the entity transform
 	Ptr<TransformComponent> transform;

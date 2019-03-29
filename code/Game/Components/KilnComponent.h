@@ -32,7 +32,7 @@ inline void KilnComponent::OnLoad() {
 	entity->SetAttribute("maxHealth", instance.GetBuildingMap()["charcoalPile"].health);
 	entity->SetAttribute("health", instance.GetBuildingMap()["charcoalPile"].health);
 	entity->RemoveComponent<Progress>();
-	entity->AddComponent<Progress>(1);//instance.GetMaterialMap()["charcoal"].timeToCreate);
+	entity->AddComponent<Progress>(instance.GetMaterialMap()["charcoal"].timeToCreate);
 	entity->RemoveComponent<BuildingSiteComponent>();
 	entity->RemoveComponent<ShapeRenderer>();
 	entity->AddComponent<ShapeRenderer>(ShapeServer::GetKilnModel());

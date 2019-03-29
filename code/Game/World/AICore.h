@@ -65,77 +65,76 @@ namespace AI
 	class AICore
 	{
 	public:
-		//Setup Variables, create workers and start Python AI
+		/// Setup Variables, create workers and start Python AI
 		AICore(int team);
-		//calls update on Python AI
+		/// Calls update on Python AI
 		void Update();
-		//handles messages and sends PythonMessages to Python 
+		/// Handles messages and sends PythonMessages to Python 
 		void OnReceiveMessage(const Ptr<Message>& message);
-		//Tells Python it has found an enity (if it is not konwn already) 
+		/// Tells Python it has found an enity (if it is not konwn already) 
 		void foundEntity(Oryol::Ptr<Entity> entity, char* cause);
-		//Tells Python it has lost track of an enity (if it is not unkonwn already) 
+		/// Tells Python it has lost track of an enity (if it is not unkonwn already) 
 		void lostEntity(Oryol::Ptr<Entity> entity, char* cause);
-		//aborts all tasks on unit
+		/// Aborts all tasks on unit
 		void AbortTask(uint64_t unitID);
-		//tells unit to move to tile x,z
+		/// Tells unit to move to tile x,z
 		void MoveTo(uint64_t unitID, int x, int z);
-		// grupp 1<
+		/// Given an entity, a type and/or an upgrade site this function can upgrade buildings and units
 		void Upgrade(uint64_t unitID, int entType, uint64_t upgradeSite);
 
 		void Attack(uint64_t attackerId, uint64_t victimId);
 
-		// Tells unit to move to the building and then starts crafting an item
+		/// Tells unit to move to the building and then starts crafting an item
 		void Craft(uint64_t unitID, uint64_t buildingID);
-		//>grupp 1
 
-		//tells unit to move to, harvest and pickup harvest and deliver it to castle
+		/// Tells unit to move to, harvest and pickup harvest and deliver it to castle
 		void HarvestResource(uint64_t unitID, uint64_t harvestID);
-		//spawns a worksite if there is enough recoures in castle, also removes recources, returns if spawed
+		
 		void Deliver(uint64_t unitID, uint64_t pickupID);
 
 
 
 		void Drop(uint64_t unitID, uint64_t dropID);
-
+		/// Spawns a worksite if there is enough recoures in castle, also removes recources, returns if spawed
 		bool SpawnWorksite(int type, int x, int z);
-		//tells a builder to move to and build a building
+		/// Tells a builder to move to and build a building
 		void Build(uint64_t builder, uint64_t bulding);
-
+		/// This function return a string corresponding to the provided integer.
 		Oryol::String getTypeString(WorkerTypes integer);
-		//gets reference to units position 
+		/// Gets reference to units position 
 		PosStruct GetPos(uint64_t UnitID);
 
 	private:
-		//this AI:s team
+		/// this AI:s team
 		int team = TeamTag::Code::Team2;
-		//what the startfile of python is called
+		/// what the startfile of python is called
 		std::string pythonHead = "main";
 
 		Ptr<InventoryComponent> inventory_team_1;
 		Ptr<InventoryComponent> inventory_team_2;
 		DataContainerSingleton & instance = DataContainerSingleton::GetInstance();
 
-		//the string to execute to update AI
+		/// The string to execute to update AI
 		Oryol::String PY_update;
-		//the string to execute for AI to receve message
+		/// The string to execute for AI to receve message
 		Oryol::String PY_onMessage;
 		
 		friend class Game;
-		//map of ids known to AI, converts numbers to Oryol::Id
+		/// Map of ids known to AI, converts numbers to Oryol::Id
 		Oryol::Map<uint64_t, Oryol::Id> entities;
 	};
 
 	struct AIStruct {
-		//pointer to AI core
+		/// Pointer to AI core
 		AICore* ai;
-		//message to be recived by python
+		/// Message to be recived by python
 		std::map<char*, char*> msg;
 	};
 
-	//the Ai plyers AICore adds iteslf to this in init
+	/// The Ai plyers AICore adds iteslf to this in init
 	static AIStruct players[2];
 
-	//A message to send to Python
+	/// A message to send to Python
 	class PythonMessage : public Message
 	{
 		ECSMessageType(PythonMessage)
@@ -143,7 +142,7 @@ namespace AI
 		std::map<char*, char*> map;
 	};
 
-	//PY BIND
+	/// Expose all the functions that are used to control the entitis to python so that they can be controlled by the AI
 	PYBIND11_EMBEDDED_MODULE(AI, m)
 	{
 		py::class_<AICore>(m, "AICore")
@@ -173,7 +172,7 @@ namespace AI
 		m.attr("player2") = &players[1];
 	}
 
-	//Creates Worker
+	/// Creates Worker
 	Oryol::Ptr<Entity> createWorker(int Team)
 	{
 		auto& unit = Game::EntityManager.CreateEntity();
@@ -224,7 +223,7 @@ namespace AI
 	}
  
 
-	//sets entityType of PythonMessage 
+	/// Sets entityType of PythonMessage 
 	void setEntityType(Oryol::Ptr<Entity> entity, Oryol::Ptr<PythonMessage> pm)
 	{
 		if (entity->HasComponent<Discoverable>())
@@ -242,11 +241,8 @@ namespace AI
 				pm->map["entityType"] = "castle";
 				break;
 			case Discoverable::Unit: 
-				if (entity->HasComponent<Worker>())
-				{
-					pm->map["entityType"] = "worker";
-				}
-				else if (entity->HasComponent<Explorer>())
+				
+				if (entity->HasComponent<Explorer>())
 				{
 					pm->map["entityType"] = "explorer";
 				}
@@ -258,15 +254,15 @@ namespace AI
 				{
 					pm->map["entityType"] = "soldier";
 				}
+				else if (entity->HasComponent<Worker>())
+				{
+					pm->map["entityType"] = "worker";
+				}
 				break;
 			case Discoverable::Building:
 				if (entity->HasComponent<KilnComponent>())
 				{
 					pm->map["entityType"] = "kiln";
-				}
-				else if (entity->HasComponent<BuildingSiteComponent>())
-				{
-					pm->map["entityType"] = "buildingSite";
 				}
 				else if (entity->HasComponent<SmithyComponent>())
 				{
@@ -279,6 +275,10 @@ namespace AI
 				else if (entity->HasComponent<SmelterComponent>())
 				{
 					pm->map["entityType"] = "smelter";
+				}
+				else if (entity->HasComponent<BuildingSiteComponent>())
+				{
+					pm->map["entityType"] = "buildingSite";
 				}
 				break;
 			default:
@@ -312,6 +312,7 @@ namespace AI
 			return;
 		}
 
+		//build message
 		auto pm = PythonMessage::Create();
 		pm->map["type"] = "entityFound";
 
@@ -338,7 +339,7 @@ namespace AI
 		pm->map["posz"] = const_cast<char*>(posZStr.c_str());
 		
 		
-
+		//send to python
 		this->OnReceiveMessage(pm);
 	}
 
@@ -350,6 +351,7 @@ namespace AI
 			return;
 		}
 
+		//build message
 		auto pm = PythonMessage::Create();
 		pm->map["type"] = "entityLost";
 
@@ -367,6 +369,7 @@ namespace AI
 		auto idStr = std::to_string(entity->Id.Value);
 		pm->map["ID"] = const_cast<char*>(idStr.c_str());
 
+		//send to python
 		this->OnReceiveMessage(pm);
 	}
 
@@ -509,7 +512,7 @@ namespace AI
 				else
 					inventory_team_2->ReadyToBuild(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].materialsRequired);
 
-				Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>(5);
+				Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].upgradeTime);
 				Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Upgrading>();
 				auto taskPlanner = Game::EntityManager.GetEntity(entities[unitID])->GetComponent<TaskPlanner>();
 				taskPlanner->ClearTasks();
@@ -537,7 +540,7 @@ namespace AI
 					else
 						inventory_team_2->ReadyToBuild(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].materialsRequired);
 
-					Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>();						// added but unsure where it should be.. like lookwise
+					Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].upgradeTime);						// added but unsure where it should be.. like lookwise
 					auto taskPlanner = Game::EntityManager.GetEntity(entities[unitID])->GetComponent<TaskPlanner>();
 					taskPlanner->ClearTasks();
 					UpgradeTask* task = new UpgradeTask();
@@ -614,6 +617,7 @@ namespace AI
 
 	inline bool AICore::SpawnWorksite(int type, int x, int z)
 	{
+		//check if you can build on tile
 		if (
 			Game::World->GetComponent<Level>()->GetTile(x, z)->IsBuildable() && 
 			Game::World->GetComponent<Level>()->GetEntities<BuildingSiteComponent>(glm::vec3(x * Level::TileSize, 0, z * Level::TileSize)).Size() == 0 &&
@@ -623,6 +627,7 @@ namespace AI
 			Game::World->GetComponent<Level>()->GetEntities<TrainingCampComponent>(glm::vec3(x * Level::TileSize, 0, z * Level::TileSize)).Size() == 0
 		)
 		{
+			//get buildingData from JSON for the requested building
 			auto buildMap = DataContainerSingleton::GetInstance().GetBuildingMap();
 			BuildingInfo uppgradesTo;
 			switch (type)
@@ -640,27 +645,32 @@ namespace AI
 				uppgradesTo = buildMap["trainingCamp"];
 				break;
 			default:
+				//invalid building
 				return false;
 			}
 
+			//cheack recources
 			if (Game::World->GetComponent<Level>()->GetCastle(this->team)->GetComponent<InventoryComponent>()->ReadyToBuild(uppgradesTo.materialsRequired))
 			{
+				//create building
 				auto building = Game::EntityManager.CreateEntity();
 				building->AddComponent<Discoverable>(Discoverable::Building);
 				building->AddComponent<TeamTag>(this->team);
 				building->AddComponent<HealthComponent>(buildMap["buildingSite"].health);
-				building->AddComponent<Progress>(1);//uppgradesTo.buildtime);
+				building->AddComponent<Progress>(uppgradesTo.buildtime);
 				building->AddComponent<BuildingSiteComponent>(type);
 				auto transform8 = building->AddComponent<TransformComponent>();
 				transform8->SetPosition(glm::vec3(Level::TileSize * x, Level::TileSize, Level::TileSize * z));
 				building->AddComponent<ShapeRenderer>(ShapeServer::GetBuildingSiteModel());
 				building->AddComponent<LevelVisitor>();
 
+				//message PY_AI
 				foundEntity(building, AI_FOUND_CAUSE_CREATED);
 
 				return true;
 			}
 		}
+		//cant build on tile or not enough recources 
 		return false;
 	}
 

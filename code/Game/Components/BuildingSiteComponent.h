@@ -36,17 +36,44 @@ public:
 			auto& msg = message->DynamicCast<ProgressDone>();
 	
 			if (msg->component == BuildingTypes::kiln)
+			{
 				entity->AddComponent<KilnComponent>();
-	
-			else if (msg->component == BuildingTypes::smithy)
-				entity->AddComponent<SmithyComponent>();
-	
-			else if (msg->component == BuildingTypes::trainingCamp)
-				entity->AddComponent<TrainingCampComponent>();
-	
-			else if (msg->component == BuildingTypes::smelter)
-				entity->AddComponent<SmelterComponent>();
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+					Game::units[8]++;
+				else
+					Game::units[12]++;
 
+			}
+
+
+			else if (msg->component == BuildingTypes::smithy)
+			{
+				entity->AddComponent<SmithyComponent>();
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+					Game::units[10]++;
+				else
+					Game::units[14]++;
+			}
+
+
+			else if (msg->component == BuildingTypes::trainingCamp)
+			{
+				entity->AddComponent<TrainingCampComponent>();
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+					Game::units[11]++;
+				else
+					Game::units[15]++;
+			}
+
+
+			else if (msg->component == BuildingTypes::smelter)
+			{
+				entity->AddComponent<SmelterComponent>();
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+					Game::units[9]++;
+				else
+					Game::units[13]++;
+			}
 		}
 	}
 	

@@ -55,7 +55,49 @@ class moveTo(state):
     def onMessage(self, message):
         if(message["type"] == "moveComplete"):
             self.machine.nextState()
-        
+
+#Walks in a direction determined by given angle (tangent). Makes new pathfind every 'step' units
+class walkInDirection(state):
+    step = 10
+    #Defines map area (defined by exploreManager)
+    min = coordinate() 
+    max = coordinate()
+
+    def __init__(self, machine, tangent, maxThreshold, minThreshold):
+        self.machine = machine
+        self.tangent = tangent
+        self.canMove = True
+        self.dx = int(walkInDirection.step * tangent)
+        self.dy = int(walkInDirection.step / tangent)
+        self.maxThreshold = maxThreshold
+        self.minThreshold = minThreshold 
+
+    def enter(self):
+        self.lastPosition = coordinate.fromStruct(AICore.GetPos(self.machine.id))
+        print(str(self.lastPosition))
+
+    def run(self):
+        #Checks if currently pathfinding
+        if(self.canMove):
+            #Checks if within search area, goes to next state if not
+            if(self.lastPosition.x > self.maxThreshold.x or self.lastPosition.y > self.maxThreshold.y or
+               self.lastPosition.x < self.minThreshold.x or self.lastPosition.y < self.minThreshold.y):
+                self.machine.nextState()
+            else:
+                #Calculates new position and pathfinds there
+                self.canMove = False
+                self.lastPosition.x = max(min(self.lastPosition.x + self.dx, self.max.x),self.min.x)
+                self.lastPosition.y = max(min(self.lastPosition.y + self.dy, self.max.y),self.min.y)
+                AICore.MoveTo(self.machine.id, self.lastPosition.x, self.lastPosition.y)
+
+    def exit(self):
+        #AICore.cancel(self.machine.id)
+        print("Moveto exit")
+        pass
+
+    def onMessage(self, message):
+        if(message["type"] == "moveComplete"):
+            self.canMove = True
 
 
 #Escapes from nearby enemies for a couple of ticks (might change to use delayed messages instead)
@@ -100,6 +142,8 @@ class harvest(state):
     def onMessage(self, message):
         if(message["type"] == "tasksComplete"):
             self.machine.nextState()
+        if(message["type"] == "harvestFailed"):
+            self.machine.goIdle()
 
 #Picks up a resource within reach
 class collectResource(state):
@@ -214,25 +258,34 @@ class attack(state):
         self.attackPriority = attackPriority
         self.machine = machine
         self.tick = 0
+        self.canAttack = True
 
     def enter(self):
         AICore.Attack(self.machine.id, self.target)
+        pass
 
     def run(self):
-        self.tick += 1
-        print("Tick: " + str(self.tick))
-        if(self.tick % attack.reloadRate == 0):
-            AICore.Abort(self.machine.id)
-            AICore.Attack(self.machine.id, self.target)
+        #self.tick += 1
+        #print("Tick: " + str(self.tick))
+        #if(self.tick % attack.reloadRate == 0):
+        #    AICore.Abort(self.machine.id)
+        #    AICore.Attack(self.machine.id, self.target)
+        if(self.canAttack):
+            self.canAttack = False
+            self.enter()
+            #AICore.Attack(self.machine.id, self.target)
 
     def exit(self):
         #Stop path follow
         pass
 
     def onMessage(self, message):
-        #if(message["type"] == "tasksComplete"):
-         #   self.machine.goIdle()
-        pass
+        if(message["type"] == "attackFailed"):
+            self.machine.goIdle()
+        elif(message["type"] == "attackSuccessful"):
+            self.canAttack = False
+        elif(message["type"] == "canAttack"):
+            self.canAttack = True
 
 ###########################################################################################
 

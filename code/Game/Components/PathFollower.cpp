@@ -10,10 +10,15 @@
 //Other
 #include "Game/Game.h"
 #include "../World/PathPlanner.h"
+#include "Game/DataContainerSingleton.h"
 
 void PathFollower::OnLoad()
 {
 	transform = entity->GetComponent<TransformComponent>();
+
+	DataContainerSingleton & data = DataContainerSingleton::GetInstance();
+	StringAtom type = entity->GetAttribute<Oryol::StringAtom>("UnitType");
+	maxVelocity = baseVelocity * data.GetUnitMap()[type].movementSpeed;
 }
 
 void PathFollower::Update()
@@ -69,7 +74,7 @@ void PathFollower::OnReceiveMessage(const Ptr<Message>& message)
 			this->hasPath = false;
 		}
 		
-		Game::Console.Log("Path found! (nodes: %i, entity: %i)", this->currentPath.Size(), entity->Id.SlotIndex);
+		//Game::Console.Log("Path found! (nodes: %i, entity: %i)", this->currentPath.Size(), entity->Id.SlotIndex);
 	}
 
 	if (message->IsA<PathFailed>())
@@ -77,12 +82,20 @@ void PathFollower::OnReceiveMessage(const Ptr<Message>& message)
 		auto msg = message->DynamicCast<PathFailed>();
 		this->hasPath = false;
 
-		Game::Console.Log("Path failed (entity: %i): %s", entity->Id.SlotIndex, msg->Error.AsCStr());
+		//Game::Console.Log("Path failed (entity: %i): %s", entity->Id.SlotIndex, msg->Error.AsCStr());
 	}
 
 	if (message->IsA<Abort>())
 	{
-		Game::Console.Log("Path cancelled with %i nodes left (entity: %i)", this->currentPath.Size(), entity->Id.SlotIndex);
+		//Game::Console.Log("Path cancelled with %i nodes left (entity: %i)", this->currentPath.Size(), entity->Id.SlotIndex);
 		this->currentPath.Clear();
 	}
 }
+
+void PathFollower::UpdateMaxVelocity()
+{
+	DataContainerSingleton & data = DataContainerSingleton::GetInstance();
+	StringAtom type = entity->GetAttribute<Oryol::StringAtom>("UnitType");
+	maxVelocity = baseVelocity * data.GetUnitMap()[type].movementSpeed;
+}
+

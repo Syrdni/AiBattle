@@ -45,6 +45,8 @@ struct Task {
 	TaskType type;
 };
 
+// Task-specific structs
+
 struct MoveTask : public Task {
 	MoveTask(int x, int z) : x(x), z(z) { type = TaskType::MoveTask; };
 	int x;
@@ -98,6 +100,7 @@ struct CraftTask : public Task {
 
 };
 
+// Class used to queue tasks and execute them
 class TaskPlanner : public BaseComponent
 {
 	ECSComponentType(TaskPlanner);
@@ -113,30 +116,37 @@ private:
 	DataContainerSingleton  &data = DataContainerSingleton::GetInstance();
 	void SendMessage(PyMessage msg);
 	void LoseResource(Oryol::Ptr<Entity> entity, char * cause);
+	// bool to decide whether to run next task during update.
 	bool runNext = false;
 };
 
+// Add new task to queue
 inline void TaskPlanner::AddTask(Task* task) {
 	if (tasks.Size() == 0)
 		runNext = true;
 	tasks.Add(task);
 }
 
+// Add new task to queue
 inline void TaskPlanner::ClearTasks() {
 	
+	// Get first task in queue
 	if (tasks.Size() == 0)
 		return;
 	Task* task = tasks[0];
 
-	if (false) // TODO: Add '(task->type == Task::TaskType::UpgradeTask)' to if statement when merged
+	// Don't allow 
+	if (task->type == Task::TaskType::UpgradeTask)
 	{
 		PyMessage msg;
-		msg["type"] = "pickupComplete";
+		msg["type"] = "abortFailed";
 		auto idStr = std::to_string(entity->Id.Value);
 		msg["ID"] = const_cast<char*>(idStr.c_str());
 		SendMessage(msg);
 		return;
 	}
+
+	// If-statements to send specific Abort-messages to other entities for certain tasks
 
 	if (task->type == Task::TaskType::HarvestTask)
 	{
@@ -150,13 +160,12 @@ inline void TaskPlanner::ClearTasks() {
 		Oryol::Ptr<Entity> targetEntity = ((BuildTask*)task)->building;
 		targetEntity->OnReceiveMessage(Abort::Create(entity));
 	}
-
-	entity->OnReceiveMessage(Abort::Create(entity));
-
-	/*if (task->type == Task::TaskType::MoveTask) {
-		entity->OnReceiveMessage(PathCancel::Create(entity));
+	else if (task->type == Task::TaskType::MoveTask) {
 		Game::World->OnReceiveMessage(PathCancel::Create(entity));
-	}*/
+	}
+
+	// Send abort message to all components in entity
+	entity->OnReceiveMessage(Abort::Create(entity));
 	
 	// Delete pointer instances before clearing list
 	for (auto& task : tasks)
@@ -168,17 +177,21 @@ inline void TaskPlanner::ClearTasks() {
 	runNext = false;
 }
 
+// Runs next task if previous task is done
 inline void TaskPlanner::FixedUpdate()
 {
 	if (runNext)
 		this->NextTask();
 }
 
+// Runs the next task in the queue
 inline void TaskPlanner::NextTask() {
 	if (tasks.Size() > 0) {
 		Task* task = tasks[0];
 
 		runNext = false;
+
+		// Run first task in queue
 
 		if (task->type == Task::TaskType::MoveTask) {
 			MoveTask* moveTask = (MoveTask*)task;
@@ -328,8 +341,8 @@ inline void TaskPlanner::NextTask() {
 				
 				// Attack Castle
 				if (victim->HasComponent<InventoryComponent>()) {
-					victim->OnReceiveMessage(Attack::Create(5));				// damage set by Krig on random.. (blame him, not Boris) 21/3 -19
-					Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), 2); // random delay.. blame krig.. . not Boris.
+					victim->OnReceiveMessage(Attack::Create(data.GetAttackDamage()));
+					Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), data.GetAttackCooldown());
 					attacker->GetComponent<Soldier>()->canAttack = false;
 				}
 				// Attack entities
@@ -337,8 +350,8 @@ inline void TaskPlanner::NextTask() {
 					for (auto entity : list)
 						if (entity == victim)
 						{
-							victim->OnReceiveMessage(Attack::Create(5));				// damage set by Krig on random.. (blame him, not Boris) 21/3 -19
-							Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), 2); // random delay.. blame krig.. . not Boris.
+							victim->OnReceiveMessage(Attack::Create(data.GetAttackDamage()));
+							Game::World->GetComponent<MessageDispatcher>()->DispatchMessage(attacker, AttackCooldown::Create(), data.GetAttackCooldown());
 							attacker->GetComponent<Soldier>()->canAttack = false;
 							break;
 						}
@@ -390,6 +403,7 @@ inline void TaskPlanner::NextTask() {
 		runNext = false;
 	}
 	else {
+		// If there are no more tasks, send message telling AI there are no tasks left
 		PyMessage msg;
 		msg["type"] = "tasksComplete";
 		auto idStr = std::to_string(entity->Id.Value);
@@ -399,6 +413,7 @@ inline void TaskPlanner::NextTask() {
 	}
 }
 
+// Remove first task in queue
 inline void TaskPlanner::RemoveTask() {
 	delete tasks.PopFront();
 	runNext = true;
@@ -413,6 +428,7 @@ inline void TaskPlanner::RemoveTask() {
 	}
 }
 
+// Method to recieve messages from other components
 inline void TaskPlanner::OnReceiveMessage(const Ptr<Message>& message) {
 	if (tasks.Size() == 0)
 		return;
@@ -499,46 +515,6 @@ inline void TaskPlanner::OnReceiveMessage(const Ptr<Message>& message) {
 	}
 	else if(message->IsA<UpgradeComplete>())
 	{
-		if (entity->HasComponent<Explorer>())
-		{
-			if (entity->GetComponent<TeamTag>()->Team == 1)
-			{
-				Game::units[1]++;
-				Game::units[0]--;
-			}
-			else
-			{
-				Game::units[5]++;
-				Game::units[4]--;
-			}
-		}
-		else if (entity->HasComponent<Soldier>())
-		{
-			if (entity->GetComponent<TeamTag>()->Team == 1)
-			{
-				Game::units[3]++;
-				Game::units[0]--;
-			}
-			else
-			{
-				Game::units[7]++;
-				Game::units[4]--;
-			}
-		}		
-		else if (entity->HasComponent<Craftsman>())
-		{
-			if (entity->GetComponent<TeamTag>()->Team == 1)
-			{
-				Game::units[2]++;
-				Game::units[0]--;
-			}
-			else
-			{
-				Game::units[6]++;
-				Game::units[4]--;
-			}
-		}
-
 		if (tasks[0]->type == Task::TaskType::UpgradeTask)
 		{
 			PyMessage msg;

@@ -15,7 +15,7 @@ from aiTypes import buildingType, coordinate
 
 class start:
     resourceGoalRatio   = [0.1, 0.1, 0.6, 0.1, 0.1]
-    unitGoalRatio       = [0.4, 0.4, 0.05, 0.15] 
+    unitGoalRatio       = [0.6, 0.2, 0.05, 0.15] 
     buildQueue          =  [
                             [buildingType.COAL,   coordinate(0,1)], 
                             [buildingType.FORGE,  coordinate(1,0)],

@@ -18,11 +18,20 @@
 //class Craftsman;
 class Craftsman;
 class Worker;
+class KilnComponent;
+class SmelterComponent;
+class SmithyComponent;
+class TrainingCampComponent;
 
 HealthComponent::HealthComponent(int maxHealth)
 {
 	this->maxHealth = maxHealth;
 	this->currentHealth = maxHealth;
+}
+
+int HealthComponent::getHp()
+{
+	return currentHealth;
 }
 
 void HealthComponent::OnLoad()
@@ -42,58 +51,97 @@ void HealthComponent::OnReceiveMessage(const Ptr<Message>& message)
 		this->currentHealth -= msg->DamageAmount;
 		if (currentHealth <= 0)
 		{
-
-
 			if (entity->HasComponent<Explorer>())
 			{
 				if (entity->GetComponent<TeamTag>()->Team == 1)
 				{
-					Game::units[1]++;
-					Game::units[0]--;
+
+					Game::units[1]--;
 				}
 				else
 				{
-					Game::units[5]++;
-					Game::units[4]--;
+
+					Game::units[5]--;
 				}
 			}
 			else if (entity->HasComponent<Soldier>())
 			{
 				if (entity->GetComponent<TeamTag>()->Team == 1)
 				{
-					Game::units[3]++;
-					Game::units[0]--;
+					Game::units[3]--;
 				}
 				else
 				{
-					Game::units[7]++;
-					Game::units[4]--;
+					Game::units[7]--;
 				}
 			}
 			else if (entity->HasComponent<Worker>())
 			{
 				if (entity->GetComponent<TeamTag>()->Team == 1)
 				{
-					Game::units[3]++;
+
 					Game::units[0]--;
 				}
 				else
 				{
-					Game::units[7]++;
 					Game::units[4]--;
+
 				}
 			}
-			if (entity->HasComponent<Craftsman>())
+			else if (entity->HasComponent<Craftsman>())
 			{
 				if (entity->GetComponent<TeamTag>()->Team == 1)
 				{
-					Game::units[2]++;
-					Game::units[0]--;
+					Game::units[2]--;
 				}
 				else
 				{
-					Game::units[6]++;
-					Game::units[4]--;
+					Game::units[6]--;
+				}
+			}
+
+			else if (entity->HasComponent<KilnComponent>())
+			{
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+				{
+					Game::units[8]--;
+				}
+				else
+				{
+					Game::units[12]--;
+				}
+			}
+			else if (entity->HasComponent<SmelterComponent>())
+			{
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+				{
+					Game::units[9]--;
+				}
+				else
+				{
+					Game::units[13]--;
+				}
+			}
+			else if (entity->HasComponent<SmithyComponent>())
+			{
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+				{
+					Game::units[10]--;
+				}
+				else
+				{
+					Game::units[14]--;
+				}
+			}
+			else if (entity->HasComponent<TrainingCampComponent>())
+			{
+				if (entity->GetComponent<TeamTag>()->Team == 1)
+				{
+					Game::units[11]--;
+				}
+				else
+				{
+					Game::units[15]--;
 				}
 			}
 
