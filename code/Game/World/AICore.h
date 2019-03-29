@@ -65,77 +65,76 @@ namespace AI
 	class AICore
 	{
 	public:
-		//Setup Variables, create workers and start Python AI
+		/// Setup Variables, create workers and start Python AI
 		AICore(int team);
-		//calls update on Python AI
+		/// Calls update on Python AI
 		void Update();
-		//handles messages and sends PythonMessages to Python 
+		/// Handles messages and sends PythonMessages to Python 
 		void OnReceiveMessage(const Ptr<Message>& message);
-		//Tells Python it has found an enity (if it is not konwn already) 
+		/// Tells Python it has found an enity (if it is not konwn already) 
 		void foundEntity(Oryol::Ptr<Entity> entity, char* cause);
-		//Tells Python it has lost track of an enity (if it is not unkonwn already) 
+		/// Tells Python it has lost track of an enity (if it is not unkonwn already) 
 		void lostEntity(Oryol::Ptr<Entity> entity, char* cause);
-		//aborts all tasks on unit
+		/// Aborts all tasks on unit
 		void AbortTask(uint64_t unitID);
-		//tells unit to move to tile x,z
+		/// Tells unit to move to tile x,z
 		void MoveTo(uint64_t unitID, int x, int z);
-		// grupp 1<
+		/// Given an entity, a type and/or an upgrade site this function can upgrade buildings and units
 		void Upgrade(uint64_t unitID, int entType, uint64_t upgradeSite);
 
 		void Attack(uint64_t attackerId, uint64_t victimId);
 
-		// Tells unit to move to the building and then starts crafting an item
+		/// Tells unit to move to the building and then starts crafting an item
 		void Craft(uint64_t unitID, uint64_t buildingID);
-		//>grupp 1
 
-		//tells unit to move to, harvest and pickup harvest and deliver it to castle
+		/// Tells unit to move to, harvest and pickup harvest and deliver it to castle
 		void HarvestResource(uint64_t unitID, uint64_t harvestID);
-		//spawns a worksite if there is enough recoures in castle, also removes recources, returns if spawed
+		/// Spawns a worksite if there is enough recoures in castle, also removes recources, returns if spawed
 		void Deliver(uint64_t unitID, uint64_t pickupID);
 
 
 
 		void Drop(uint64_t unitID, uint64_t dropID);
-
+		/// Given a position and a building type the function spawn a building site
 		bool SpawnWorksite(int type, int x, int z);
-		//tells a builder to move to and build a building
+		/// Tells a builder to move to and build a building
 		void Build(uint64_t builder, uint64_t bulding);
-
+		/// This function return a string corresponding to the provided integer.
 		Oryol::String getTypeString(WorkerTypes integer);
-		//gets reference to units position 
+		/// Gets reference to units position 
 		PosStruct GetPos(uint64_t UnitID);
 
 	private:
-		//this AI:s team
+		/// this AI:s team
 		int team = TeamTag::Code::Team2;
-		//what the startfile of python is called
+		/// what the startfile of python is called
 		std::string pythonHead = "main";
 
 		Ptr<InventoryComponent> inventory_team_1;
 		Ptr<InventoryComponent> inventory_team_2;
 		DataContainerSingleton & instance = DataContainerSingleton::GetInstance();
 
-		//the string to execute to update AI
+		/// The string to execute to update AI
 		Oryol::String PY_update;
-		//the string to execute for AI to receve message
+		/// The string to execute for AI to receve message
 		Oryol::String PY_onMessage;
 		
 		friend class Game;
-		//map of ids known to AI, converts numbers to Oryol::Id
+		/// Map of ids known to AI, converts numbers to Oryol::Id
 		Oryol::Map<uint64_t, Oryol::Id> entities;
 	};
 
 	struct AIStruct {
-		//pointer to AI core
+		/// Pointer to AI core
 		AICore* ai;
-		//message to be recived by python
+		/// Message to be recived by python
 		std::map<char*, char*> msg;
 	};
 
-	//the Ai plyers AICore adds iteslf to this in init
+	/// The Ai plyers AICore adds iteslf to this in init
 	static AIStruct players[2];
 
-	//A message to send to Python
+	/// A message to send to Python
 	class PythonMessage : public Message
 	{
 		ECSMessageType(PythonMessage)
@@ -143,7 +142,7 @@ namespace AI
 		std::map<char*, char*> map;
 	};
 
-	//PY BIND
+	/// Expose all the functions that are used to control the entitis to python so that they can be controlled by the AI
 	PYBIND11_EMBEDDED_MODULE(AI, m)
 	{
 		py::class_<AICore>(m, "AICore")
@@ -173,7 +172,7 @@ namespace AI
 		m.attr("player2") = &players[1];
 	}
 
-	//Creates Worker
+	/// Creates Worker
 	Oryol::Ptr<Entity> createWorker(int Team)
 	{
 		auto& unit = Game::EntityManager.CreateEntity();
@@ -224,7 +223,7 @@ namespace AI
 	}
  
 
-	//sets entityType of PythonMessage 
+	/// Sets entityType of PythonMessage 
 	void setEntityType(Oryol::Ptr<Entity> entity, Oryol::Ptr<PythonMessage> pm)
 	{
 		if (entity->HasComponent<Discoverable>())

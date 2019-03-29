@@ -32,7 +32,11 @@ public:
 	/// When the timer is over it sends back a message to the entity that sent the start message and it in turn decides what to do with it.
 	/// @author kirlun-7
 	void FixedUpdate();
+	/// If the parent entity has a team tag load that teams inventory, used for adding materials when crafting.
+	/// @author kirlun-7
 	void OnLoad();
+	/// Recieves start messages and abort messages.
+	/// @author kirlun-7
 	void OnReceiveMessage(const Ptr<Message>& message);
 private:
 	
