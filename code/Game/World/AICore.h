@@ -89,13 +89,13 @@ namespace AI
 
 		/// Tells unit to move to, harvest and pickup harvest and deliver it to castle
 		void HarvestResource(uint64_t unitID, uint64_t harvestID);
-		/// Spawns a worksite if there is enough recoures in castle, also removes recources, returns if spawed
+		
 		void Deliver(uint64_t unitID, uint64_t pickupID);
 
 
 
 		void Drop(uint64_t unitID, uint64_t dropID);
-		/// Given a position and a building type the function spawn a building site
+		/// Spawns a worksite if there is enough recoures in castle, also removes recources, returns if spawed
 		bool SpawnWorksite(int type, int x, int z);
 		/// Tells a builder to move to and build a building
 		void Build(uint64_t builder, uint64_t bulding);
@@ -312,6 +312,7 @@ namespace AI
 			return;
 		}
 
+		//build message
 		auto pm = PythonMessage::Create();
 		pm->map["type"] = "entityFound";
 
@@ -338,7 +339,7 @@ namespace AI
 		pm->map["posz"] = const_cast<char*>(posZStr.c_str());
 		
 		
-
+		//send to python
 		this->OnReceiveMessage(pm);
 	}
 
@@ -350,6 +351,7 @@ namespace AI
 			return;
 		}
 
+		//build message
 		auto pm = PythonMessage::Create();
 		pm->map["type"] = "entityLost";
 
@@ -367,6 +369,7 @@ namespace AI
 		auto idStr = std::to_string(entity->Id.Value);
 		pm->map["ID"] = const_cast<char*>(idStr.c_str());
 
+		//send to python
 		this->OnReceiveMessage(pm);
 	}
 
@@ -614,6 +617,7 @@ namespace AI
 
 	inline bool AICore::SpawnWorksite(int type, int x, int z)
 	{
+		//check if you can build on tile
 		if (
 			Game::World->GetComponent<Level>()->GetTile(x, z)->IsBuildable() && 
 			Game::World->GetComponent<Level>()->GetEntities<BuildingSiteComponent>(glm::vec3(x * Level::TileSize, 0, z * Level::TileSize)).Size() == 0 &&
@@ -623,6 +627,7 @@ namespace AI
 			Game::World->GetComponent<Level>()->GetEntities<TrainingCampComponent>(glm::vec3(x * Level::TileSize, 0, z * Level::TileSize)).Size() == 0
 		)
 		{
+			//get buildingData from JSON for the requested building
 			auto buildMap = DataContainerSingleton::GetInstance().GetBuildingMap();
 			BuildingInfo uppgradesTo;
 			switch (type)
@@ -640,11 +645,14 @@ namespace AI
 				uppgradesTo = buildMap["trainingCamp"];
 				break;
 			default:
+				//invalid building
 				return false;
 			}
 
+			//cheack recources
 			if (Game::World->GetComponent<Level>()->GetCastle(this->team)->GetComponent<InventoryComponent>()->ReadyToBuild(uppgradesTo.materialsRequired))
 			{
+				//create building
 				auto building = Game::EntityManager.CreateEntity();
 				building->AddComponent<Discoverable>(Discoverable::Building);
 				building->AddComponent<TeamTag>(this->team);
@@ -656,11 +664,13 @@ namespace AI
 				building->AddComponent<ShapeRenderer>(ShapeServer::GetBuildingSiteModel());
 				building->AddComponent<LevelVisitor>();
 
+				//message PY_AI
 				foundEntity(building, AI_FOUND_CAUSE_CREATED);
 
 				return true;
 			}
 		}
+		//cant build on tile or not enough recources 
 		return false;
 	}
 
