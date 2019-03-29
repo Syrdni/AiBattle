@@ -241,11 +241,8 @@ namespace AI
 				pm->map["entityType"] = "castle";
 				break;
 			case Discoverable::Unit: 
-				if (entity->HasComponent<Worker>())
-				{
-					pm->map["entityType"] = "worker";
-				}
-				else if (entity->HasComponent<Explorer>())
+				
+				if (entity->HasComponent<Explorer>())
 				{
 					pm->map["entityType"] = "explorer";
 				}
@@ -257,15 +254,15 @@ namespace AI
 				{
 					pm->map["entityType"] = "soldier";
 				}
+				else if (entity->HasComponent<Worker>())
+				{
+					pm->map["entityType"] = "worker";
+				}
 				break;
 			case Discoverable::Building:
 				if (entity->HasComponent<KilnComponent>())
 				{
 					pm->map["entityType"] = "kiln";
-				}
-				else if (entity->HasComponent<BuildingSiteComponent>())
-				{
-					pm->map["entityType"] = "buildingSite";
 				}
 				else if (entity->HasComponent<SmithyComponent>())
 				{
@@ -278,6 +275,10 @@ namespace AI
 				else if (entity->HasComponent<SmelterComponent>())
 				{
 					pm->map["entityType"] = "smelter";
+				}
+				else if (entity->HasComponent<BuildingSiteComponent>())
+				{
+					pm->map["entityType"] = "buildingSite";
 				}
 				break;
 			default:
