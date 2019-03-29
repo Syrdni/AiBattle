@@ -6,6 +6,8 @@ from Pos2 import Pos
 import Explorer2
 import random
 
+import Config2 as Config
+
 #import EntityManager2
 #import Pos2
 #def getpos(): return Pos2.Pos(5, 11)
@@ -32,11 +34,30 @@ class EntityManager:
 	randomNext = 0
 	updateStart = 0
 	
-	currentExplore = 97
+	explorerAmount = 19
+	choppers = 12
+	builders = 4
+	
+	mapSize = 100
+	
+	currentExploreX = 102
+	currentExploreZ = 102
+	exploreMaxX = 102
+	exploreMaxZ = 102
+	exploreSide = 0
+	deltaExploreX = 5
+	deltaExploreZ = 5
 
 	# Add an entity to the list
 	def add(entity, type):
 		if type == 'worker':
+			if EntityManager.choppers > 0:
+				EntityManager.choppers -= 1
+				entity.chopper = True
+			elif EntityManager.builders > 0:
+				EntityManager.builders -= 1
+				entity.skipState = True
+		
 			EntityManager.workers[entity.id] = entity
 		elif type == 'explorer':
 			EntityManager.explorers[entity.id] = entity
@@ -103,7 +124,7 @@ class EntityManager:
 	# Check if an explorer is needed
 	def explorerNeeded():
 		# Create explorers based on unexplored area size
-		if EntityManager.explorerCount < 8:
+		if EntityManager.explorerCount < EntityManager.explorerAmount:
 			return True
 		return False
 		
@@ -113,35 +134,133 @@ class EntityManager:
 		# Try to explore enemy base as fast as possible to avoid being killed
 		# Avoid enemy base when they have soldiers
 		
-		explorer.z += explorer.dz * 6
+		explorer.x -= EntityManager.deltaExploreX
+		explorer.z -= EntityManager.deltaExploreZ
 		
-		if explorer.z < 3:
-			explorer.z = 3
-			explorer.dz = 1
-			explorer.x -= 3
-		elif explorer.z > 97:
-			explorer.z = 97
-			explorer.dz = -1
-			explorer.x -= 3
+		if EntityManager.deltaExploreX > 0:
+			if explorer.x < -1:
+				explorer.x += EntityManager.deltaExploreX
 			
-		if explorer.x < explorer.x2:
-			explorer.x = explorer.x1
-			explorer.target = BuildingManager.getEnemyCastle()
+				if EntityManager.setExploreArea(explorer):
+					return EntityManager.getExplorePosition(explorer)
+					
+			if explorer.x < 3:
+				explorer.x = 3
+		else:
+			if explorer.x > EntityManager.mapSize + 1:
+				explorer.x += EntityManager.deltaExploreX
 			
-			if explorer.target:
-				pass#explorer.changeState(Explorer2.Charge)
-			#return None
+				if EntityManager.setExploreArea(explorer):
+					return EntityManager.getExplorePosition(explorer)
+			
+			if explorer.x > EntityManager.mapSize - 3:
+				explorer.x = EntityManager.mapSize - 3
+				
+		if EntityManager.deltaExploreZ > 0:
+			if explorer.z < -1:
+				explorer.z += EntityManager.deltaExploreZ
+			
+				if EntityManager.setExploreArea(explorer):
+					return EntityManager.getExplorePosition(explorer)
+					
+			if explorer.z < 3:
+				explorer.z = 3
+		else:
+			if explorer.z > EntityManager.mapSize + 1:
+				explorer.z += EntityManager.deltaExploreZ
+			
+				if EntityManager.setExploreArea(explorer):
+					return EntityManager.getExplorePosition(explorer)
+			
+			if explorer.z > EntityManager.mapSize - 3:
+				explorer.z = EntityManager.mapSize - 3
 			
 		return Pos(explorer.x, explorer.z)
 		
 	# Sets the explore area of the explorer
 	def setExploreArea(explorer):
-		explorer.x1 = EntityManager.currentExplore
-		explorer.x2 = EntityManager.currentExplore - 9
-		EntityManager.currentExplore -= 12
+		if explorer.side != 0:
+			side = explorer.side
+		else:
+			side = EntityManager.exploreSide
 		
-		if EntityManager.currentExplore - 9 < 0:
-			EntityManager.currentExplore = 97
+		explorer.side = side
+	
+		if side == 0:
+			charge = False
+			
+			if EntityManager.deltaExploreX > 0 and EntityManager.currentExploreX < 3:
+				charge = True
+			elif EntityManager.deltaExploreX < 0 and EntityManager.currentExploreX > EntityManager.mapSize - 3:
+				charge = True
+			elif EntityManager.deltaExploreZ > 0 and EntityManager.currentExploreZ < 3:
+				charge = True
+			elif EntityManager.deltaExploreZ < 0 and EntityManager.currentExploreZ > EntityManager.mapSize - 3:
+				charge = True
+					
+			if charge:
+				explorer.target = BuildingManager.getEnemyCastle()
+						
+				if explorer.target:
+					explorer.changeState(Explorer2.Charge)
+					return False
+				return True
+		
+			explorer.x = EntityManager.currentExploreX
+			explorer.z = EntityManager.currentExploreZ
+			EntityManager.exploreSide = 1
+		elif side == 1:
+			EntityManager.currentExploreX -= EntityManager.deltaExploreX
+			
+			charge = False
+			
+			if EntityManager.deltaExploreX > 0 and EntityManager.currentExploreX < 3:
+				charge = True
+			elif EntityManager.deltaExploreX < 0 and EntityManager.currentExploreX > EntityManager.mapSize - 3:
+				charge = True
+			elif EntityManager.deltaExploreZ > 0 and EntityManager.currentExploreZ < 3:
+				charge = True
+			elif EntityManager.deltaExploreZ < 0 and EntityManager.currentExploreZ > EntityManager.mapSize - 3:
+				charge = True
+					
+			if charge:
+				explorer.target = BuildingManager.getEnemyCastle()
+						
+				if explorer.target:
+					explorer.changeState(Explorer2.Charge)
+					return False
+				return True
+			
+			explorer.x = EntityManager.currentExploreX
+			explorer.z = EntityManager.exploreMaxZ
+			EntityManager.exploreSide = 2
+		else:
+			EntityManager.currentExploreZ -= EntityManager.deltaExploreZ
+			
+			charge = False
+			
+			if EntityManager.deltaExploreX > 0 and EntityManager.currentExploreX < 3:
+				charge = True
+			elif EntityManager.deltaExploreX < 0 and EntityManager.currentExploreX > EntityManager.mapSize - 3:
+				charge = True
+			elif EntityManager.deltaExploreZ > 0 and EntityManager.currentExploreZ < 3:
+				charge = True
+			elif EntityManager.deltaExploreZ < 0 and EntityManager.currentExploreZ > EntityManager.mapSize - 3:
+				charge = True
+			
+			if charge:
+				explorer.target = BuildingManager.getEnemyCastle()
+				
+				if explorer.target:
+					explorer.changeState(Explorer2.Charge)
+					return False
+				return True
+			
+			explorer.x = EntityManager.exploreMaxX
+			explorer.z = EntityManager.currentExploreZ
+			EntityManager.exploreSide = 1
+			
+		return True
 		
 	# Check if a craftsman is needed
 	def craftsmanNeeded():

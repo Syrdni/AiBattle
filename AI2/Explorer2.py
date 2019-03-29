@@ -10,19 +10,16 @@ class Explorer(BaseGameEntity):
 	# Create explorer
 	def __init__(self, id):
 		super().__init__(id)
+		self.side = 0
 		EntityManager2.EntityManager.add(self, 'explorer')
 		self.charge = False
 		self.target = None
 		EntityManager2.EntityManager.setExploreArea(self)
-		self.x = self.x1
-		self.z = 97
-		self.dz = -1
-		
 		self.changeState(Explore)
 	
 	# Handles messages
 	def onMessage(self, message):
-		if message['type'] == 'tasksComplete':
+		if message['type'] == 'moveComplete':
 			if not self.charge:
 				self.changeState(Explore)
 			else:
@@ -38,7 +35,7 @@ class Explore(State):
 
 # Charge strategy
 class Charge(State):
-	enemyRadius = 3
+	enemyRadius = 2
 	chaseRadius = 2
 
 	def enter(unit):

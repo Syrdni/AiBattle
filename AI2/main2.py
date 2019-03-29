@@ -33,7 +33,7 @@ def onMessage():
 		message['posx'] = float(message['posx'])
 		message['posz'] = float(message['posz'])
 		entityPos = Pos(message['posx'] / AICore.tileSize, message['posz'] / AICore.tileSize)
-	
+		
 		# Resources
 		if message['entityType'] == 'tree':
 			ResourceManager.trees.append(Resource(message['ID'], entityPos, 'tree'))
@@ -76,6 +76,24 @@ def onMessage():
 		elif message['entityType'] == 'castle':
 			if message['team'] == StrategyManager.team:
 				BuildingManager.castle = Building(message['ID'], entityPos)
+				
+				if entityPos.x > 50:
+					EntityManager.deltaExploreX = 5
+					EntityManager.currentExploreX = EntityManager.mapSize + 2
+					EntityManager.exploreMaxX = EntityManager.mapSize + 2
+				else:
+					EntityManager.deltaExploreX = -5
+					EntityManager.currentExploreX = -2
+					EntityManager.exploreMaxX = -2
+					
+				if entityPos.z > 50:
+					EntityManager.deltaExploreZ = 5
+					EntityManager.currentExploreZ = EntityManager.mapSize + 2
+					EntityManager.exploreMaxZ = EntityManager.mapSize + 2
+				else:
+					EntityManager.deltaExploreZ = -5
+					EntityManager.currentExploreZ = -2
+					EntityManager.exploreMaxZ = -2
 			elif message['team'] == StrategyManager.enemyTeam:
 				BuildingManager.enemyCastle = Building(message['ID'], entityPos)
 				

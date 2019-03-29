@@ -1,11 +1,12 @@
 from AICore2 import AICore
+import Config2 as Config
 import BuildingManager2
 from Pos2 import Pos
 
 class ResourceManager:
 	# Keep track of all items
 	items = {'wood': 0, 'charCoal': 0, 'ironOre': 0, 'iron': 0, 'sword': 0}
-	backupItems = {'wood': 0, 'charCoal': 0, 'ironOre': 0, 'iron': 0, 'sword': 0}
+	backupItems = {'wood': 10, 'charCoal': 0, 'ironOre': 0, 'iron': 0, 'sword': 0}
 	charCoal = 10
 	
 	# Keep track of all resources on the map
@@ -13,9 +14,29 @@ class ResourceManager:
 	trees = []
 	
 	# Item materials
-	charCoalMaterials = {'wood': 2}
-	ironMaterials = {'charCoal': 3, 'ironOre': 2}
-	swordMaterials = {'charCoal': 2, 'iron': 1}
+	charCoalMaterials = {
+		'wood': Config.charcoal['requiredMaterials']['wood'],
+		'charCoal': Config.charcoal['requiredMaterials']['charcoal'],
+		'ironOre': Config.charcoal['requiredMaterials']['ironOre'],
+		'iron': Config.charcoal['requiredMaterials']['ironIngot'],
+		'sword': Config.charcoal['requiredMaterials']['sword']
+	}
+	
+	ironMaterials = {
+		'wood': Config.ironIngot['requiredMaterials']['wood'],
+		'charCoal': Config.ironIngot['requiredMaterials']['charcoal'],
+		'ironOre': Config.ironIngot['requiredMaterials']['ironOre'],
+		'iron': Config.ironIngot['requiredMaterials']['ironIngot'],
+		'sword': Config.ironIngot['requiredMaterials']['sword']
+	}
+	
+	swordMaterials = {
+		'wood': Config.sword['requiredMaterials']['wood'],
+		'charCoal': Config.sword['requiredMaterials']['charcoal'],
+		'ironOre': Config.sword['requiredMaterials']['ironOre'],
+		'iron': Config.sword['requiredMaterials']['ironIngot'],
+		'sword': Config.sword['requiredMaterials']['sword']
+	}
 	
 	# Add items
 	def addItem(item, amount = 1):
@@ -94,9 +115,6 @@ class ResourceManager:
 	
 	# Get the type of resource to gather
 	def resourceNeeded():
-		if ResourceManager.items['charCoal'] + ResourceManager.items['wood'] / 2 < ResourceManager.charCoal:
-			return 'tree'
-	
-		if BuildingManager2.BuildingManager.smelterCount > 0 and len(ResourceManager.ironOre) > 0:
+		if len(ResourceManager.ironOre) > 0 and ResourceManager.items['wood'] > ResourceManager.items['ironOre'] * 2.5:
 			return 'iron'
 		return 'tree'

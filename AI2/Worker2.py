@@ -24,11 +24,14 @@ class Worker(BaseGameEntity):
 	# Create new worker
 	def __init__(self, id):
 		super().__init__(id)
+		self.chopper = False
+		self.skipState = False
 		EntityManager.add(self, 'worker')
 		self.item = None
 		self.resource = None
 		self.charge = False
 		self.upgradeType = None
+		self.campId = None
 		
 		self.changeState(FindWork)
 		
@@ -56,7 +59,10 @@ class Worker(BaseGameEntity):
 			self.resource = None
 		
 		if not self.charge and message['type'] == 'tasksComplete':
-			self.changeState(FindWork)
+			if self.state == WalkToCamp:
+				self.changeState(CreateSoldier)
+			else:
+				self.changeState(FindWork)
 			
 		if self.charge and message['type'] == 'tasksComplete':
 			self.changeState(Scatter)
@@ -79,6 +85,14 @@ class Worker(BaseGameEntity):
 # Find work for the worker
 class FindWork(State):
 	def execute(worker):
+		if worker.chopper:
+			worker.changeState(ChopTree)
+			return
+			
+		if worker.skipState:
+			worker.changeState(CreateCraftsman)
+			return
+		
 		# Create explorers if needed
 		if EntityManager.explorerNeeded():
 			worker.changeState(CreateExplorer)
@@ -91,7 +105,7 @@ class FindWork(State):
 			
 		# Create soldier if needed
 		elif EntityManager.soldierNeeded():
-			worker.changeState(CreateSoldier)
+			worker.changeState(WalkToCamp)
 			return
 		
 		# Gather resources
@@ -157,16 +171,18 @@ class CreateCraftsman(State):
 	def enter(worker):
 		EntityManager.craftsmenCount += 1
 		worker.upgrade(WorkerTypes.craftsman)
+		
+class WalkToCamp(State):
+	def enter(worker):
+		for id in BuildingManager.camps:
+			ResourceManager.removeItem('sword')
+			worker.campId = id
+			worker.setTarget(BuildingManager.camps[id].pos)
+			return
+		
+		worker.changeState(FindWork)
 
 # Convert worker to soldier
 class CreateSoldier(State):
 	def enter(worker):
-		for id in BuildingManager.camps:
-			if random.randint(1, 2) == 1:
-				worker.setTarget(BuildingManager.camps[id].pos)
-			else:
-				ResourceManager.removeItem('sword')
-				worker.upgrade(WorkerTypes.soldier, id)
-			return
-			
-		worker.changeState(FindWork)
+		worker.upgrade(WorkerTypes.soldier, worker.campId)

@@ -12,7 +12,7 @@ class StrategyManager:
 	state = None
 	
 	backupSoldiers = 0
-	soldierAttackCount = 3
+	soldierAttackCount = 1
 	
 	defendRadius = 10
 	defendCount = 5
@@ -34,13 +34,14 @@ class StrategyManager:
 		soldiers = len(EntityManager.soldiers)
 		enemySoldiers = EntityManager.enemySoldierCount
 		
-		if soldiers > StrategyManager.soldierAttackCount + StrategyManager.backupSoldiers:
+		if soldiers >= StrategyManager.soldierAttackCount + StrategyManager.backupSoldiers:
 			return True
 			
 		return False
 		
 	# Detect enemy attacks	
 	def detectAttacks():
+		return False
 		soldiers = 0
 		castlePos = BuildingManager.getCastle()
 	
@@ -56,6 +57,7 @@ class StrategyManager:
 		StrategyManager.state.enter()
 		
 	def attackIntruders():
+		return
 		castlePos = BuildingManager.getCastle()
 	
 		# Attack with guarding soldiers when enemy soldiers near base
@@ -69,7 +71,7 @@ class StrategyManager:
 					if soldier.state == Guarding:
 						soldier.enemy = enemySoldier
 						soldier.changeState(Attack)
-		
+
 class GuardBase(State):
 	def enter():
 		# Send soldiers back to base
@@ -127,10 +129,11 @@ class DefendBase(State):
 class AttackEnemyBase(State):
 	def enter():
 		# Charge-scatter on enemy base
-		#for explorer in EntityManager.getExplorers():
-			#explorer.target = BuildingManager.getEnemyCastle()
-			#explorer.charge = True
-			#explorer.changeState(Charge)
+		for id in EntityManager.explorers:
+			explorer = EntityManager.explorers[id]
+			explorer.target = BuildingManager.getEnemyCastle()
+			explorer.charge = True
+			explorer.changeState(Charge)
 			
 		#for worker in EntityManager.getWorkers():
 			#worker.target = BuildingManager.getEnemyCastle()
@@ -141,20 +144,6 @@ class AttackEnemyBase(State):
 			#craftsman.target = BuildingManager.getEnemyCastle()
 			#craftsman.charge = True
 			#craftsman.changeState(Charge)
-			
-		# Delay
-		# Defend base with a couple soldiers and attack with the rest
-		for soldier in EntityManager.soldiers:
-			EntityManager.soldiers[soldier].changeState(AttackBase)
-			
-		i = StrategyManager.backupSoldiers
-			
-		for id in EntityManager.soldiers:
-			#EntityManager.soldiers[id].changeState(Guard)
-			i -= 1
-			
-			if i <= 0:
-				break
 
 	def execute():
 		# Attack base if charge-scatter is sucessful
