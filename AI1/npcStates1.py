@@ -49,7 +49,6 @@ class moveTo(state):
 
     def exit(self):
         #AICore.cancel(self.machine.id)
-        print("Moveto exit")
         pass
 
     def onMessage(self, message):
@@ -74,7 +73,6 @@ class walkInDirection(state):
 
     def enter(self):
         self.lastPosition = coordinate.fromStruct(AICore.GetPos(self.machine.id))
-        print(str(self.lastPosition))
 
     def run(self):
         #Checks if currently pathfinding
@@ -92,7 +90,6 @@ class walkInDirection(state):
 
     def exit(self):
         #AICore.cancel(self.machine.id)
-        print("Moveto exit")
         pass
 
     def onMessage(self, message):
@@ -189,7 +186,6 @@ class build(state):
         self.building = building
         self.machine = machine
     def enter(self):
-        print(self.building.id)
         AICore.Build(self.machine.id, self.building.id)
     def exit(self):
         if(not self.building.isComplete):
@@ -257,7 +253,7 @@ class attack(state):
         self.target = target
         self.attackPriority = attackPriority
         self.machine = machine
-        self.tick = 0
+        #self.tick = 0
         self.canAttack = True
 
     def enter(self):
@@ -266,14 +262,16 @@ class attack(state):
 
     def run(self):
         #self.tick += 1
-        #print("Tick: " + str(self.tick))
-        #if(self.tick % attack.reloadRate == 0):
-        #    AICore.Abort(self.machine.id)
-        #    AICore.Attack(self.machine.id, self.target)
         if(self.canAttack):
             self.canAttack = False
             self.enter()
-            #AICore.Attack(self.machine.id, self.target)
+            AICore.Attack(self.machine.id, self.target)
+        #elif(self.tick % attack.reloadRate == 0):
+        #    AICore.Abort(self.machine.id)
+        #    pos = coordinate.fromStruct(AICore.GetPos(self.target))
+        #    print("Target position: " + str(pos))
+        #    AICore.MoveTo(self.machine.id, pos.x, pos.y)
+            
 
     def exit(self):
         #Stop path follow

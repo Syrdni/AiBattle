@@ -217,13 +217,11 @@ class unitManager:
             for unit in list:
                 if(unit.id == id):
                     return unit
-        return "We fucked up"
 
     def addUnit(id):
         #unitManager.workers.append(npcBase(id,AICore.GetPos(id)))
         unitManager.workers.append(npcBase(id,0))
         unitManager.unitCount+=1
-        print("UnitCount: " + str(unitManager.unitCount))
 
     def onMessage(message):
         if(message["type"] == "entityFound"):
@@ -240,8 +238,6 @@ class unitManager:
                 unitManager.builders.remove(unit)
             elif(unit.type == npcType.SOLDIER):
                 unitManager.soldiers.remove(unit)
-            else:
-                print("Warning!!!! Could not remove unit " + message["ID"])
 
 
 def printWholeStatus():

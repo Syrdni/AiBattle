@@ -37,6 +37,8 @@ class coordinate:
         return coordinate(self.x - rhs.x, self.y - rhs.y)
     def __mul__(self, rhs):
         return coordinate(int(self.x * rhs), int(self.y * rhs))
+    def getAbs(self):
+        return coordinate(abs(self.x), abs(self.y))
     def __len__(self):
         return math.sqrt(math.pow(self.x, 2) + math.pow(self.y, 2))
     def __floordiv_(self, rhs):

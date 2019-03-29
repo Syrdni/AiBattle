@@ -36,10 +36,7 @@ class exploreManager:
                 tanValue = tan(1.55*max(min(exploreManager.baseScouters/exploreManager.rayCount, 1),0))
                 
                 #Adds 4 walkInDirection to unit stateQueue
-                unit.stateQueue = [moveTo(unit, exploreManager.min),walkInDirection(unit, tanValue, exploreManager.max*0.9, coordinate()), 
-                                   moveTo(unit, exploreManager.max), walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.2), 
-                                   moveTo(unit, exploreManager.max*0.2), walkInDirection(unit, tanValue, exploreManager.max*0.8, coordinate()), 
-                                   moveTo(unit, exploreManager.max*0.8), walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.4)]
+                unit.stateQueue = exploreManager.getQueue(unit, tanValue)
                 unit.enter()
             #One explorer explores across the map, to connect the different routes that will be created at the start
             elif(exploreManager.baseScouters < exploreManager.rayCount):
@@ -52,3 +49,18 @@ class exploreManager:
                 y = random.randint(exploreManager.min.y, exploreManager.max.y)
 
                 unit.forceState(moveTo(unit, coordinate(x,y)))
+
+    def getQueue(unit, tanValue):
+        if(castle.team == 1):
+            return [
+            moveTo(unit, exploreManager.min),       walkInDirection(unit, tanValue, exploreManager.max*0.9, coordinate()), 
+            moveTo(unit, exploreManager.max),       walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.2), 
+            moveTo(unit, exploreManager.max*0.2),   walkInDirection(unit, tanValue, exploreManager.max*0.8, coordinate()), 
+            moveTo(unit, exploreManager.max*0.8),   walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.4)]
+        else:
+            return [
+            moveTo(unit, exploreManager.max),       walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.2), 
+            moveTo(unit, exploreManager.min),       walkInDirection(unit, tanValue, exploreManager.max*0.8, coordinate()), 
+            moveTo(unit, exploreManager.max*0.8),   walkInDirection(unit, -tanValue, exploreManager.max*1.1, exploreManager.max*0.2), 
+            moveTo(unit, exploreManager.max*0.2),   walkInDirection(unit, tanValue, exploreManager.max*0.6, coordinate())]
+
