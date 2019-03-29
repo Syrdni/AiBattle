@@ -537,7 +537,7 @@ namespace AI
 					else
 						inventory_team_2->ReadyToBuild(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].materialsRequired);
 
-					Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>();						// added but unsure where it should be.. like lookwise
+					Game::EntityManager.GetEntity(entities[unitID])->AddComponent<Progress>(instance.GetUnitMap()[getTypeString(WorkerTypes(entType))].upgradeTime);						// added but unsure where it should be.. like lookwise
 					auto taskPlanner = Game::EntityManager.GetEntity(entities[unitID])->GetComponent<TaskPlanner>();
 					taskPlanner->ClearTasks();
 					UpgradeTask* task = new UpgradeTask();
