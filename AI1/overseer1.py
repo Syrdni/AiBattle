@@ -50,6 +50,8 @@ class overseer():
         
         if(settings.unitGoalRatio != None):
             unitManager.unitGoalRatio.fromList(settings.unitGoalRatio)
+            exploreManager.rayCount = int(settings.unitGoalRatio[1] * 50)
+            
         
         if(settings.buildQueue != None):
             architectManager.buildQueue = settings.buildQueue
